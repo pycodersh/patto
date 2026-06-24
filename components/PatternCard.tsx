@@ -26,7 +26,7 @@ export function PatternCard({
     <section
       aria-label={isFlipped ? '카드 뒷면' : '카드 앞면'}
       aria-pressed={isFlipped}
-      className="h-[31rem] w-full cursor-pointer rounded-[28px] text-left [perspective:1400px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F8CFF] focus-visible:ring-offset-4"
+      className="h-[31rem] w-full cursor-pointer rounded-[28px] text-left [perspective:1200px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F8CFF] focus-visible:ring-offset-4"
       onClick={onFlip}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -39,7 +39,8 @@ export function PatternCard({
     >
       <div
         className={cn(
-          'relative h-full w-full rounded-[28px] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] [transform-style:preserve-3d] motion-reduce:transition-none',
+          'relative h-full w-full rounded-[28px] [transform-style:preserve-3d] motion-reduce:transition-none',
+          'transition-transform duration-[560ms] ease-[cubic-bezier(0.4,0,0.2,1)]',
           isFlipped && '[transform:rotateY(180deg)]',
         )}
       >

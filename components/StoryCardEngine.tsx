@@ -1,7 +1,6 @@
 'use client'
 
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { CompletionScreen } from '@/components/CompletionScreen'
@@ -20,7 +19,8 @@ type StoryCardEngineProps = {
 
 const READ_GOAL = 10
 const SLIDE_DURATION = 360
-const SLIDE_MIDPOINT = 160
+const SLIDE_MIDPOINT = 155
+const DRAG_THRESHOLD = 0.30  // 카드 폭의 30%
 
 export function StoryCardEngine({ story, totalStories }: StoryCardEngineProps) {
   const router = useRouter()
@@ -32,31 +32,59 @@ export function StoryCardEngine({ story, totalStories }: StoryCardEngineProps) {
   const [cardIndex, setCardIndex] = useState(0)
   const [isFlipped, setIsFlipped] = useState(false)
   const [animDir, setAnimDir] = useState<'next' | 'prev' | null>(null)
-  const [isAnimating, setIsAnimating] = useState(false)
   const [showMiniStory, setShowMiniStory] = useState(false)
   const [showCompletion, setShowCompletion] = useState(false)
   const [readCount, setReadCount] = useState(0)
 
-  // 스와이프 감지용
+  // 드래그 상태
+  const [dragOffset, setDragOffset] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+
+  // refs — 이벤트 클로저 안에서 최신값 유지
+  const isAnimatingRef = useRef(false)
   const touchStartX = useRef(0)
   const touchStartY = useRef(0)
-  const touchStartTime = useRef(0)
   const didSwipe = useRef(false)
+  const didDrag = useRef(false)
+  const cardWrapperRef = useRef<HTMLDivElement>(null)
 
   const currentPattern = story.patterns[cardIndex]
   const isLastStory = story.order_index >= totalStories
   const canGoPrevious = cardIndex > 0 || showMiniStory
 
-  // 방향성 카드 전환 (스와이프/버튼 공통)
+  // ── non-passive touchmove: 수평 드래그 시 페이지 스크롤 방지 ──
+  useEffect(() => {
+    const el = cardWrapperRef.current
+    if (!el) return
+
+    const onMove = (e: TouchEvent) => {
+      if (isAnimatingRef.current) return
+      const dx = e.touches[0].clientX - touchStartX.current
+      const dy = e.touches[0].clientY - touchStartY.current
+      // 수평 방향이 우세할 때만 드래그로 처리
+      if (Math.abs(dx) > Math.abs(dy) + 4) {
+        e.preventDefault()
+        didDrag.current = true
+        setDragOffset(dx)
+        setIsDragging(true)
+      }
+    }
+
+    el.addEventListener('touchmove', onMove, { passive: false })
+    return () => el.removeEventListener('touchmove', onMove)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── 방향성 카드 전환 ──
   function navigate(dir: 'next' | 'prev') {
-    if (isAnimating) return
-    setIsAnimating(true)
+    if (isAnimatingRef.current) return
+    isAnimatingRef.current = true
+    setDragOffset(0)
+    setIsDragging(false)
     setAnimDir(dir)
 
     window.setTimeout(() => {
       if (dir === 'next') {
         if (showMiniStory) {
-          // mini story에서 next → 다음 story
           goNextStory()
         } else if (cardIndex < totalCards - 1) {
           setCardIndex((v) => v + 1)
@@ -78,46 +106,53 @@ export function StoryCardEngine({ story, totalStories }: StoryCardEngineProps) {
     }, SLIDE_MIDPOINT)
 
     window.setTimeout(() => {
-      setIsAnimating(false)
+      isAnimatingRef.current = false
       setAnimDir(null)
     }, SLIDE_DURATION)
   }
 
+  // ── 탭 → 뒤집기 ──
   function handleFlip() {
     if (didSwipe.current) {
       didSwipe.current = false
       return
     }
-    if (isAnimating) return
+    if (isAnimatingRef.current) return
     const next = !isFlipped
     setIsFlipped(next)
     if (next) onPatternView(currentPattern.id)
   }
 
-  // 터치 이벤트
+  // ── 터치 시작 ──
   function handleTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX
     touchStartY.current = e.touches[0].clientY
-    touchStartTime.current = Date.now()
     didSwipe.current = false
+    didDrag.current = false
+    setIsDragging(false)
   }
 
+  // ── 터치 종료: 임계값 판단 ──
   function handleTouchEnd(e: React.TouchEvent) {
-    const deltaX = e.changedTouches[0].clientX - touchStartX.current
-    const deltaY = e.changedTouches[0].clientY - touchStartY.current
-    const elapsed = Date.now() - touchStartTime.current
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = e.changedTouches[0].clientY - touchStartY.current
+    const cardWidth = cardWrapperRef.current?.offsetWidth ?? 320
+    const threshold = cardWidth * DRAG_THRESHOLD
 
-    const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY)
-    const isSwipe = Math.abs(deltaX) > 48 && isHorizontal && elapsed < 500
+    setIsDragging(false)
+    setDragOffset(0)
 
-    if (isSwipe) {
+    if (didDrag.current && Math.abs(dx) > Math.abs(dy)) {
+      // 드래그가 있었다면 flip은 무조건 차단
       didSwipe.current = true
-      if (deltaX < 0) {
-        navigate('next')
-      } else if (canGoPrevious) {
-        navigate('prev')
+      if (Math.abs(dx) >= threshold) {
+        // 임계값 초과 → 카드 이동
+        if (dx < 0) navigate('next')
+        else if (canGoPrevious) navigate('prev')
       }
+      // 임계값 미만 → 원위치 (dragOffset=0으로 이미 리셋됨)
     }
+    didDrag.current = false
   }
 
   function handleRead() {
@@ -136,12 +171,35 @@ export function StoryCardEngine({ story, totalStories }: StoryCardEngineProps) {
 
   if (showCompletion) return <CompletionScreen />
 
+  // ── 드래그 실시간 스타일 ──
+  const cardWidth = cardWrapperRef.current?.offsetWidth ?? 320
+  const dragProgress = dragOffset / cardWidth  // -1 ~ +1
+  const tiltDeg = dragProgress * 7             // 최대 ±7도 기울기
+
+  const dragStyle: React.CSSProperties = isDragging || dragOffset !== 0
+    ? {
+        transform: `translateX(${dragOffset}px) rotate(${tiltDeg}deg)`,
+        transition: 'none',
+        willChange: 'transform',
+        boxShadow: `
+          0 ${12 + Math.abs(dragProgress) * 24}px
+          ${48 + Math.abs(dragProgress) * 40}px
+          rgba(79, 140, 255, ${0.10 + Math.abs(dragProgress) * 0.14})
+        `,
+        borderRadius: '28px',
+      }
+    : {
+        transform: 'translateX(0) rotate(0deg)',
+        transition: 'transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.42s ease',
+      }
+
   const slideClass = animDir === 'next'
     ? 'animate-slide-next'
     : animDir === 'prev'
       ? 'animate-slide-prev'
       : ''
 
+  // ── Mini Story 화면 ──
   if (showMiniStory) {
     return (
       <div className="flex min-h-[calc(100dvh-5rem)] flex-col">
@@ -172,8 +230,9 @@ export function StoryCardEngine({ story, totalStories }: StoryCardEngineProps) {
     )
   }
 
+  // ── 카드 학습 화면 ──
   return (
-    <div className="flex min-h-[calc(100dvh-5rem)] flex-col">
+    <div className="flex min-h-[calc(100dvh-5rem)] flex-col pb-12">
       <StoryProgress
         currentCard={cardIndex + 1}
         storyNumber={story.order_index}
@@ -182,53 +241,33 @@ export function StoryCardEngine({ story, totalStories }: StoryCardEngineProps) {
         totalStories={totalStories}
       />
 
-      {/* 카드 영역 (스와이프 감지) */}
+      {/* 카드 영역 — slide 애니메이션은 section에, drag 스타일은 inner div에 분리 */}
       <section
-        className={cn('flex flex-1 items-center py-3', slideClass)}
+        aria-label="카드 학습 영역"
+        className={cn('flex flex-1 items-center py-4', slideClass)}
         onTouchEnd={handleTouchEnd}
         onTouchStart={handleTouchStart}
       >
-        <PatternCard
-          defaultDifficulty={defaultDifficulty}
-          isFavorited={favorites.has(currentPattern.id)}
-          isFlipped={isFlipped}
-          onFlip={handleFlip}
-          onToggleFavorite={() => onToggleFavorite(currentPattern.id)}
-          pattern={currentPattern}
-        />
+        <div
+          ref={cardWrapperRef}
+          className="w-full"
+          style={dragStyle}
+        >
+          <PatternCard
+            defaultDifficulty={defaultDifficulty}
+            isFavorited={favorites.has(currentPattern.id)}
+            isFlipped={isFlipped}
+            onFlip={handleFlip}
+            onToggleFavorite={() => onToggleFavorite(currentPattern.id)}
+            pattern={currentPattern}
+          />
+        </div>
       </section>
 
-      {/* 카드 네비게이션 바 */}
-      <nav
-        className="flex items-center justify-between gap-4 pb-12"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          aria-label="이전 카드"
-          className={cn(
-            'flex items-center gap-1 rounded-2xl px-4 py-2.5 text-sm font-bold transition-colors',
-            canGoPrevious
-              ? 'text-[#4F8CFF] hover:bg-[#DCEBFF]'
-              : 'cursor-not-allowed text-[#D1D9E6]',
-          )}
-          disabled={!canGoPrevious}
-          onClick={() => navigate('prev')}
-          type="button"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          이전
-        </button>
-
-        <button
-          aria-label="다음 카드"
-          className="flex items-center gap-1 rounded-2xl px-4 py-2.5 text-sm font-bold text-[#4F8CFF] transition-colors hover:bg-[#DCEBFF]"
-          onClick={() => navigate('next')}
-          type="button"
-        >
-          {cardIndex === totalCards - 1 ? 'Story' : '다음'}
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </nav>
+      {/* 드래그 힌트 */}
+      <p className="pb-2 text-center text-[10px] font-medium text-[#D1D9E6]">
+        ← 스와이프로 이동 →
+      </p>
     </div>
   )
 }
