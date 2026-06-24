@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { CompletionScreen } from '@/components/CompletionScreen'
 import { MiniStory } from '@/components/MiniStory'
 import { PatternCard } from '@/components/PatternCard'
+import { ReadingMissionBar } from '@/components/ReadingMissionBar'
 import { StoryJumpSheet } from '@/components/StoryJumpSheet'
 import { StoryProgress } from '@/components/StoryProgress'
 import { useLearningProgress } from '@/hooks/useLearningProgress'
@@ -22,8 +23,8 @@ type StoryCardEngineProps = {
 }
 
 const READ_GOAL = 10
-const ANIM_DURATION = 300   // Apple-style: 300ms
-const ANIM_MIDPOINT = 114   // 38% of 300ms
+const ANIM_DURATION = 300
+const ANIM_MIDPOINT = 114
 const DRAG_THRESHOLD = 0.30
 
 export function StoryCardEngine({ story, totalStories, allStories }: StoryCardEngineProps) {
@@ -55,7 +56,6 @@ export function StoryCardEngine({ story, totalStories, allStories }: StoryCardEn
   const isLastStory = story.order_index >= totalStories
   const canGoPrevious = cardIndex > 0 || showMiniStory
 
-  // non-passive touchmove — React의 onTouchMove는 passive이므로 useEffect로 처리
   useEffect(() => {
     const el = cardWrapperRef.current
     if (!el) return
@@ -145,8 +145,14 @@ export function StoryCardEngine({ story, totalStories, allStories }: StoryCardEn
     didDrag.current = false
   }
 
-  function handleRead() {
+  function handleIncrementRead() {
     const next = Math.min(readCount + 1, READ_GOAL)
+    setReadCount(next)
+    onStoryProgress(story.id, next)
+  }
+
+  function handleDecrementRead() {
+    const next = Math.max(readCount - 1, 0)
     setReadCount(next)
     onStoryProgress(story.id, next)
   }
@@ -159,11 +165,8 @@ export function StoryCardEngine({ story, totalStories, allStories }: StoryCardEn
   if (showCompletion) return <CompletionScreen />
 
   // ── Apple-style 드래그 비주얼 ──
-  // - translateX: 손가락 움직임의 65%만 따라옴 (카드가 살짝 저항감 있게)
-  // - rotateZ: 최대 ±4도 기울기
-  // - scale: 최대 4% 축소
   const cardWidth = cardWrapperRef.current?.offsetWidth ?? 320
-  const dragProgress = dragOffset / cardWidth  // -1 ~ +1
+  const dragProgress = dragOffset / cardWidth
   const tx = dragOffset * 0.65
   const rz = dragProgress * 4
   const sc = 1 - Math.min(Math.abs(dragProgress) * 0.04, 0.04)
@@ -179,7 +182,6 @@ export function StoryCardEngine({ story, totalStories, allStories }: StoryCardEn
     : {
         transform: 'translateX(0) rotateZ(0deg) scale(1)',
         transition: 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        filter: 'drop-shadow(0 8px 20px rgba(79,140,255,0.10))',
       }
 
   const animClass = animDir === 'next'
@@ -190,33 +192,69 @@ export function StoryCardEngine({ story, totalStories, allStories }: StoryCardEn
 
   const miniStoryText = story.mini_stories[difficulty] || story.mini_stories.normal || ''
 
+  // ── 공통 하단 영역 ──
+  const bottomNav = (
+    <div className="flex flex-col gap-3 pb-4 pt-2">
+      <ReadingMissionBar
+        count={readCount}
+        goal={READ_GOAL}
+        onDecrement={handleDecrementRead}
+        onIncrement={handleIncrementRead}
+      />
+      <div className="flex items-center justify-center gap-5">
+        <button
+          aria-label="이전"
+          className={cn(
+            'flex h-11 w-11 items-center justify-center rounded-full',
+            'border border-white bg-white/90 backdrop-blur-sm',
+            'shadow-[0_4px_16px_rgba(79,140,255,0.13)] ring-1 ring-[#E8F0FE]',
+            'transition-all duration-200 active:scale-95',
+            canGoPrevious
+              ? 'text-[#6B7280] hover:text-[#4F8CFF] hover:ring-[#DCEBFF]'
+              : 'cursor-not-allowed text-[#D1D9E6]',
+          )}
+          disabled={!canGoPrevious}
+          onClick={() => canGoPrevious && navigate('prev')}
+          type="button"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <button
+          aria-label="다음"
+          className={cn(
+            'flex h-11 w-11 items-center justify-center rounded-full',
+            'border border-[#4F8CFF]/20 bg-[#4F8CFF]',
+            'shadow-[0_4px_16px_rgba(79,140,255,0.32)]',
+            'text-white transition-all duration-200',
+            'hover:bg-[#3B7DE8] hover:shadow-[0_6px_24px_rgba(79,140,255,0.40)]',
+            'active:scale-95',
+          )}
+          onClick={() => navigate('next')}
+          type="button"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      </div>
+    </div>
+  )
+
   // ── Mini Story 화면 ──
   if (showMiniStory) {
     return (
       <>
-        <div className="flex min-h-[calc(100dvh-5rem)] flex-col">
+        <div className="flex min-h-[calc(100dvh-5rem)] flex-col gap-3">
           <StoryProgress
-            currentCard={totalCards}
-            isMiniStory
             onJump={() => setJumpOpen(true)}
             storyNumber={story.order_index}
-            totalCards={totalCards}
           />
           <div
-            className={cn('flex flex-1 flex-col', animClass)}
+            className={cn('relative flex-1', animClass)}
             onTouchEnd={handleTouchEnd}
             onTouchStart={handleTouchStart}
           >
-            <MiniStory
-              isLastStory={isLastStory}
-              onComplete={goNextStory}
-              onPrevious={() => navigate('prev')}
-              onRead={handleRead}
-              readCount={readCount}
-              readGoal={READ_GOAL}
-              text={miniStoryText}
-            />
+            <MiniStory text={miniStoryText} totalCards={totalCards} />
           </div>
+          {bottomNav}
         </div>
         <StoryJumpSheet
           currentOrderIndex={story.order_index}
@@ -231,70 +269,33 @@ export function StoryCardEngine({ story, totalStories, allStories }: StoryCardEn
   // ── 카드 학습 화면 ──
   return (
     <>
-      <div className="flex min-h-[calc(100dvh-5rem)] flex-col">
+      <div className="flex min-h-[calc(100dvh-5rem)] flex-col gap-3">
         <StoryProgress
-          currentCard={cardIndex + 1}
           onJump={() => setJumpOpen(true)}
           storyNumber={story.order_index}
-          totalCards={totalCards}
         />
 
-        {/* 카드 영역 */}
         <section
           aria-label="카드 학습 영역"
-          className={cn('flex flex-1 items-center py-4', animClass)}
+          className={cn('flex-1', animClass)}
           onTouchEnd={handleTouchEnd}
           onTouchStart={handleTouchStart}
         >
-          <div className="w-full" ref={cardWrapperRef} style={dragStyle}>
+          <div className="h-full w-full" ref={cardWrapperRef} style={dragStyle}>
             <PatternCard
-              cardLabel={`Card ${cardIndex + 1} / ${totalCards}`}
+              cardIndex={cardIndex}
               difficulty={difficulty}
               isFavorited={favorites.has(currentPattern.id)}
               isFlipped={isFlipped}
               onFlip={handleFlip}
               onToggleFavorite={() => onToggleFavorite(currentPattern.id)}
               pattern={currentPattern}
+              totalCards={totalCards}
             />
           </div>
         </section>
 
-        {/* ◀ ▶ 이동 버튼 (PC 우선, 모바일 보조) */}
-        <nav aria-label="카드 이동" className="flex items-center justify-center gap-5 pb-5 pt-1">
-          <button
-            aria-label="이전 카드"
-            className={cn(
-              'flex h-11 w-11 items-center justify-center rounded-full',
-              'border border-white bg-white/90 backdrop-blur-sm',
-              'shadow-[0_4px_16px_rgba(79,140,255,0.13)] ring-1 ring-[#E8F0FE]',
-              'transition-all duration-200 active:scale-95',
-              canGoPrevious
-                ? 'text-[#6B7280] hover:text-[#4F8CFF] hover:shadow-[0_4px_20px_rgba(79,140,255,0.22)] hover:ring-[#DCEBFF]'
-                : 'cursor-not-allowed text-[#D1D9E6]',
-            )}
-            disabled={!canGoPrevious}
-            onClick={() => canGoPrevious && navigate('prev')}
-            type="button"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-
-          <button
-            aria-label="다음 카드"
-            className={cn(
-              'flex h-11 w-11 items-center justify-center rounded-full',
-              'border border-[#4F8CFF]/20 bg-[#4F8CFF] backdrop-blur-sm',
-              'shadow-[0_4px_16px_rgba(79,140,255,0.32)]',
-              'text-white transition-all duration-200',
-              'hover:bg-[#3B7DE8] hover:shadow-[0_6px_24px_rgba(79,140,255,0.40)]',
-              'active:scale-95',
-            )}
-            onClick={() => navigate('next')}
-            type="button"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </nav>
+        {bottomNav}
       </div>
 
       <StoryJumpSheet
