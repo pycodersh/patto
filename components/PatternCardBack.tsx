@@ -17,6 +17,19 @@ type PatternCardBackProps = {
   onToggleFavorite?: () => void
 }
 
+const storyLabelStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-jakarta), -apple-system, sans-serif',
+  fontWeight: 800,
+  fontSize: '0.72rem',
+  textTransform: 'uppercase',
+  letterSpacing: '0.10em',
+  color: '#4F8CFF',
+  textDecoration: 'underline wavy',
+  textDecorationColor: '#4F8CFF',
+  textUnderlineOffset: '3px',
+  textDecorationThickness: '1.5px',
+}
+
 export function PatternCardBack({
   pattern,
   difficulty,
@@ -42,22 +55,14 @@ export function PatternCardBack({
 
       {/* STORY 섹션 헤더 */}
       <button
-        className="self-start transition-opacity hover:opacity-60 active:opacity-40"
+        className="mb-3 flex items-center gap-1 self-start transition-opacity hover:opacity-60 active:opacity-40"
         onClick={(e) => { e.stopPropagation(); onJump?.() }}
-        style={{
-          fontFamily: 'var(--font-jakarta), -apple-system, sans-serif',
-          fontWeight: 800,
-          fontSize: '0.68rem',
-          textTransform: 'uppercase',
-          letterSpacing: '0.10em',
-          color: '#4F8CFF',
-        }}
         type="button"
       >
-        Story {storyNumber}
+        <span style={{ color: '#4F8CFF', fontSize: '0.5rem' }}>✦</span>
+        <span style={storyLabelStyle}>Story {storyNumber}</span>
+        <span style={{ color: '#4F8CFF', fontSize: '0.5rem' }}>✦</span>
       </button>
-      {/* 얇은 블루 라인 */}
-      <div className="mb-3 mt-1 h-px w-full bg-[#4F8CFF]/20" />
 
       {/* 도트 — 가운데 */}
       <div className="mb-3 flex items-center justify-center gap-1.5">
@@ -107,12 +112,12 @@ export function PatternCardBack({
         )}
       </ol>
 
-      {/* 전체 듣기 — 예문 스피커 아래 우측 정렬 */}
+      {/* 전체 듣기 — 아이콘만, 예문 아래 우측 */}
       <div className="flex items-center justify-end pt-2">
         <button
           aria-label={isSpeaking ? '정지' : '전체 듣기'}
           className={cn(
-            'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors',
+            'rounded-full p-2 transition-colors',
             isSpeaking
               ? 'bg-[#FFE8E8] text-[#FF6B6B]'
               : 'bg-[#DCEBFF] text-[#4F8CFF] hover:bg-[#C8DCFF]',
@@ -120,8 +125,7 @@ export function PatternCardBack({
           onClick={handleSpeakAll}
           type="button"
         >
-          <Volume2 className="h-3.5 w-3.5" />
-          {isSpeaking ? '정지' : '전체 듣기'}
+          <Volume2 className="h-4 w-4" />
         </button>
       </div>
 

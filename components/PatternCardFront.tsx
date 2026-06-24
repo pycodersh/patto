@@ -15,6 +15,19 @@ type PatternCardFrontProps = {
   onToggleFavorite?: () => void
 }
 
+const storyLabelStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-jakarta), -apple-system, sans-serif',
+  fontWeight: 800,
+  fontSize: '0.72rem',
+  textTransform: 'uppercase',
+  letterSpacing: '0.10em',
+  color: '#4F8CFF',
+  textDecoration: 'underline wavy',
+  textDecorationColor: '#4F8CFF',
+  textUnderlineOffset: '3px',
+  textDecorationThickness: '1.5px',
+}
+
 export function PatternCardFront({
   pattern,
   cardIndex,
@@ -27,26 +40,18 @@ export function PatternCardFront({
   return (
     <div className="absolute inset-0 flex flex-col rounded-[28px] border border-[#E8F0FE] bg-white p-5 shadow-[0_8px_40px_rgba(79,140,255,0.10)] [backface-visibility:hidden]">
 
-      {/* STORY 섹션 헤더 */}
+      {/* STORY 섹션 헤더 — wavy underline, ✦ 장식 */}
       <button
-        className="self-start transition-opacity hover:opacity-60 active:opacity-40"
+        className="mb-3 flex items-center gap-1 self-start transition-opacity hover:opacity-60 active:opacity-40"
         onClick={(e) => { e.stopPropagation(); onJump?.() }}
-        style={{
-          fontFamily: 'var(--font-jakarta), -apple-system, sans-serif',
-          fontWeight: 800,
-          fontSize: '0.68rem',
-          textTransform: 'uppercase',
-          letterSpacing: '0.10em',
-          color: '#4F8CFF',
-        }}
         type="button"
       >
-        Story {storyNumber}
+        <span style={{ color: '#4F8CFF', fontSize: '0.5rem' }}>✦</span>
+        <span style={storyLabelStyle}>Story {storyNumber}</span>
+        <span style={{ color: '#4F8CFF', fontSize: '0.5rem' }}>✦</span>
       </button>
-      {/* 얇은 블루 라인 */}
-      <div className="mb-3 mt-1 h-px w-full bg-[#4F8CFF]/20" />
 
-      {/* 도트 인디케이터 — 가운데 */}
+      {/* 도트 인디케이터 */}
       <div className="flex items-center justify-center gap-1.5">
         {Array.from({ length: totalCards }, (_, i) => (
           <div

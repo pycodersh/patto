@@ -17,6 +17,19 @@ type MiniStoryProps = {
   onDecrement: () => void
 }
 
+const storyLabelStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-jakarta), -apple-system, sans-serif',
+  fontWeight: 800,
+  fontSize: '0.72rem',
+  textTransform: 'uppercase',
+  letterSpacing: '0.10em',
+  color: '#4F8CFF',
+  textDecoration: 'underline wavy',
+  textDecorationColor: '#4F8CFF',
+  textUnderlineOffset: '3px',
+  textDecorationThickness: '1.5px',
+}
+
 export function MiniStory({
   content,
   storyNumber,
@@ -47,24 +60,16 @@ export function MiniStory({
 
       {/* STORY 섹션 헤더 */}
       <button
-        className="self-start transition-opacity hover:opacity-60 active:opacity-40"
+        className="mb-3 flex items-center gap-1 self-start transition-opacity hover:opacity-60 active:opacity-40"
         onClick={(e) => { e.stopPropagation(); onJump?.() }}
-        style={{
-          fontFamily: 'var(--font-jakarta), -apple-system, sans-serif',
-          fontWeight: 800,
-          fontSize: '0.68rem',
-          textTransform: 'uppercase',
-          letterSpacing: '0.10em',
-          color: '#4F8CFF',
-        }}
         type="button"
       >
-        Story {storyNumber}
+        <span style={{ color: '#4F8CFF', fontSize: '0.5rem' }}>✦</span>
+        <span style={storyLabelStyle}>Story {storyNumber}</span>
+        <span style={{ color: '#4F8CFF', fontSize: '0.5rem' }}>✦</span>
       </button>
-      {/* 얇은 블루 라인 */}
-      <div className="mb-3 mt-1 h-px w-full bg-[#4F8CFF]/20" />
 
-      {/* 단락형 스토리 텍스트 — 영어 + 한국어 */}
+      {/* 단락형 스토리 텍스트 */}
       <div className="flex-1 space-y-4 overflow-y-auto">
         {enParagraphs.map((enPara, i) => (
           <div key={i} className="space-y-0.5">
@@ -80,12 +85,12 @@ export function MiniStory({
         ))}
       </div>
 
-      {/* 전체 듣기 — 텍스트 아래 우측 정렬 */}
+      {/* 전체 듣기 — 아이콘만, 텍스트 바로 아래 우측 */}
       <div className="flex justify-end pt-2">
         <button
           aria-label={isSpeaking ? '정지' : '전체 듣기'}
           className={cn(
-            'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors',
+            'rounded-full p-2 transition-colors',
             isSpeaking
               ? 'bg-[#FFE8E8] text-[#FF6B6B]'
               : 'bg-[#DCEBFF] text-[#4F8CFF] hover:bg-[#C8DCFF]',
@@ -93,73 +98,69 @@ export function MiniStory({
           onClick={handleSpeakAll}
           type="button"
         >
-          <Volume2 className="h-3.5 w-3.5" />
-          {isSpeaking ? '정지' : '전체 듣기'}
+          <Volume2 className="h-4 w-4" />
         </button>
       </div>
 
+      {/* 낭독 미션 레이블 — 선 위 */}
+      <div className="mt-3 flex items-center gap-1.5">
+        <BookOpen className="h-3.5 w-3.5 text-[#4F8CFF]" />
+        <span className="text-[10px] font-bold tracking-wide text-[#4F8CFF]">낭독 미션</span>
+      </div>
+
       {/* 구분선 */}
-      <div className="my-3 h-px w-full bg-[#F0F5FF]" />
+      <div className="my-2 h-px w-full bg-[#F0F5FF]" />
 
-      {/* 낭독 미션 — 카드 내부 */}
-      <div className="flex items-center gap-3">
-        {/* 좌측: 책 아이콘 + 레이블 */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <BookOpen className="h-3.5 w-3.5 text-[#4F8CFF]" />
-          <span className="text-[10px] font-bold tracking-wide text-[#4F8CFF]">낭독 미션</span>
-        </div>
+      {/* [-] 도트 [+] — 가운데 정렬 */}
+      <div className="flex items-center justify-center gap-3 pb-1">
+        <button
+          aria-label="낭독 횟수 -1"
+          className={cn(
+            'flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-all active:scale-90',
+            isZero
+              ? 'cursor-not-allowed bg-[#F5F8FF] text-[#D1D9E6]'
+              : 'bg-[#F0F7FF] text-[#4F8CFF] hover:bg-[#DCEBFF]',
+          )}
+          disabled={isZero}
+          onClick={(e) => { e.stopPropagation(); if (!isZero) onDecrement() }}
+          type="button"
+        >
+          <Minus className="h-3 w-3" />
+        </button>
 
-        {/* 중앙: - 도트 + */}
-        <div className="flex flex-1 items-center gap-2">
-          <button
-            aria-label="낭독 횟수 -1"
-            className={cn(
-              'flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-all active:scale-90',
-              isZero
-                ? 'cursor-not-allowed bg-[#F5F8FF] text-[#D1D9E6]'
-                : 'bg-[#F0F7FF] text-[#4F8CFF] hover:bg-[#DCEBFF]',
-            )}
-            disabled={isZero}
-            onClick={(e) => { e.stopPropagation(); if (!isZero) onDecrement() }}
-            type="button"
-          >
-            <Minus className="h-3 w-3" />
-          </button>
-
-          <div className="flex flex-1 flex-col items-center gap-1">
-            <div className="flex items-center gap-[3px]">
-              {Array.from({ length: goal }, (_, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    'rounded-full transition-all duration-300',
-                    i < readCount ? 'h-1.5 w-1.5 bg-[#4F8CFF]' : 'h-1 w-1 bg-[#D1D9E6]',
-                  )}
-                />
-              ))}
-            </div>
-            <span className="text-[9px] font-semibold tabular-nums text-[#B0BCCE]">
-              {readCount} / {goal}
-            </span>
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex items-center gap-[3px]">
+            {Array.from({ length: goal }, (_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  'rounded-full transition-all duration-300',
+                  i < readCount ? 'h-1.5 w-1.5 bg-[#4F8CFF]' : 'h-1 w-1 bg-[#D1D9E6]',
+                )}
+              />
+            ))}
           </div>
-
-          <button
-            aria-label="낭독 횟수 +1"
-            className={cn(
-              'flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-all active:scale-90',
-              isDone
-                ? 'cursor-not-allowed bg-[#DCFCE7] text-[#22C55E]'
-                : 'bg-[#4F8CFF] text-white hover:bg-[#3B7DE8]',
-            )}
-            disabled={isDone}
-            onClick={(e) => { e.stopPropagation(); if (!isDone) onIncrement() }}
-            type="button"
-          >
-            {isDone
-              ? <span className="text-[10px] font-bold">✓</span>
-              : <Plus className="h-3 w-3" />}
-          </button>
+          <span className="text-[9px] font-semibold tabular-nums text-[#B0BCCE]">
+            {readCount} / {goal}
+          </span>
         </div>
+
+        <button
+          aria-label="낭독 횟수 +1"
+          className={cn(
+            'flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-all active:scale-90',
+            isDone
+              ? 'cursor-not-allowed bg-[#DCFCE7] text-[#22C55E]'
+              : 'bg-[#4F8CFF] text-white hover:bg-[#3B7DE8]',
+          )}
+          disabled={isDone}
+          onClick={(e) => { e.stopPropagation(); if (!isDone) onIncrement() }}
+          type="button"
+        >
+          {isDone
+            ? <span className="text-[10px] font-bold">✓</span>
+            : <Plus className="h-3 w-3" />}
+        </button>
       </div>
     </div>
   )
