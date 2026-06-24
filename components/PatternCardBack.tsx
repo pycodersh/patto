@@ -41,7 +41,25 @@ export function PatternCardBack({
   return (
     <div className="absolute inset-0 flex flex-col rounded-[28px] border border-[#E8F0FE] bg-white p-5 shadow-[0_8px_40px_rgba(79,140,255,0.10)] [backface-visibility:hidden] [transform:rotateY(180deg)]">
 
-      <StoryLabel storyNumber={storyNumber} onJump={onJump} />
+      {/* 헤더 — STORY 레이블 (좌) + 하트 (우) */}
+      <div className="mb-1 flex items-start justify-between">
+        <StoryLabel storyNumber={storyNumber} onJump={onJump} className="mb-0" />
+        {onToggleFavorite && (
+          <button
+            aria-label={isFavorited ? '즐겨찾기 해제' : '즐겨찾기 추가'}
+            className="rounded-full p-1.5 transition-colors hover:bg-[#F0F7FF]"
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
+            type="button"
+          >
+            <Heart
+              className={cn(
+                'h-5 w-5 transition-colors',
+                isFavorited ? 'fill-[#FF6B6B] text-[#FF6B6B]' : 'text-[#D1D9E6]',
+              )}
+            />
+          </button>
+        )}
+      </div>
 
       {/* 도트 — 가운데 */}
       <div className="mb-3 flex items-center justify-center gap-1.5">
@@ -106,25 +124,6 @@ export function PatternCardBack({
         >
           <Volume2 className="h-4 w-4" />
         </button>
-      </div>
-
-      {/* 하트 — 좌하단 */}
-      <div className="flex justify-start pt-1">
-        {onToggleFavorite && (
-          <button
-            aria-label={isFavorited ? '즐겨찾기 해제' : '즐겨찾기 추가'}
-            className="rounded-full p-1.5 transition-colors hover:bg-[#F0F7FF]"
-            onClick={(e) => { e.stopPropagation(); onToggleFavorite() }}
-            type="button"
-          >
-            <Heart
-              className={cn(
-                'h-5 w-5 transition-colors',
-                isFavorited ? 'fill-[#FF6B6B] text-[#FF6B6B]' : 'text-[#D1D9E6]',
-              )}
-            />
-          </button>
-        )}
       </div>
     </div>
   )
