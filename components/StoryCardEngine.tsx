@@ -200,11 +200,11 @@ export function StoryCardEngine({ story, totalStories, allStories }: StoryCardEn
         aria-label="이전"
         className={cn(
           'flex h-11 w-11 items-center justify-center rounded-full',
-          'border border-white bg-white/90 backdrop-blur-sm',
-          'shadow-[0_4px_16px_rgba(79,140,255,0.13)] ring-1 ring-[#E8F0FE]',
+          'border border-[#E8F0FE] bg-white',
+          'shadow-[0_2px_8px_rgba(79,140,255,0.07)]',
           'transition-all duration-200 active:scale-95',
           canGoPrevious
-            ? 'text-[#6B7280] hover:text-[#4F8CFF] hover:ring-[#DCEBFF]'
+            ? 'text-[#6B7280] hover:border-[#DCEBFF] hover:text-[#4F8CFF]'
             : 'cursor-not-allowed text-[#D1D9E6]',
         )}
         disabled={!canGoPrevious}
@@ -217,10 +217,10 @@ export function StoryCardEngine({ story, totalStories, allStories }: StoryCardEn
         aria-label="다음"
         className={cn(
           'flex h-11 w-11 items-center justify-center rounded-full',
-          'border border-[#4F8CFF]/20 bg-[#4F8CFF]',
-          'shadow-[0_4px_16px_rgba(79,140,255,0.32)]',
+          'bg-[#4F8CFF]',
+          'shadow-[0_2px_8px_rgba(79,140,255,0.18)]',
           'text-white transition-all duration-200',
-          'hover:bg-[#3B7DE8] hover:shadow-[0_6px_24px_rgba(79,140,255,0.40)]',
+          'hover:bg-[#3B7DE8]',
           'active:scale-95',
         )}
         onClick={() => navigate('next')}

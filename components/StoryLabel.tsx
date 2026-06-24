@@ -8,17 +8,20 @@ type StoryLabelProps = {
 export function StoryLabel({ storyNumber, onJump }: StoryLabelProps) {
   return (
     <button
-      className="absolute left-3 top-3 z-10 flex items-center gap-1 rounded-full px-3 py-1 text-sm transition-opacity hover:opacity-75 active:opacity-50"
+      className="absolute left-4 top-4 z-10 transition-opacity hover:opacity-60 active:opacity-40"
       style={{
-        fontFamily: 'var(--font-baloo), -apple-system, sans-serif',
+        fontFamily: 'var(--font-jakarta), -apple-system, sans-serif',
         fontWeight: 800,
-        color: '#4A90E2',
-        backgroundColor: '#EEF4FF',
+        fontSize: '18px',
+        textTransform: 'uppercase',
+        letterSpacing: '0.11em',
+        color: '#4F8CFF',
+        lineHeight: 1,
       }}
       onClick={(e) => { e.stopPropagation(); onJump?.() }}
       type="button"
     >
-      ✦ STORY {storyNumber} ✦
+      STORY {storyNumber}
     </button>
   )
 }
