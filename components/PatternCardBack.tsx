@@ -1,30 +1,16 @@
 'use client'
 
 import { Volume2 } from 'lucide-react'
-import { useState } from 'react'
 
 import { useSpeech } from '@/hooks/useSpeech'
-import { cn } from '@/lib/utils'
 import type { Difficulty, PatternWithExamples } from '@/types/pattern'
-
-const DIFFICULTY_LABELS: Record<Difficulty, string> = {
-  normal:   'Normal',
-  advanced: 'Advanced',
-  native:   'Native',
-}
-
-const DIFFICULTIES: Difficulty[] = ['normal', 'advanced', 'native']
 
 type PatternCardBackProps = {
   pattern: PatternWithExamples
-  defaultDifficulty?: Difficulty
+  difficulty: Difficulty
 }
 
-export function PatternCardBack({
-  pattern,
-  defaultDifficulty = 'normal',
-}: PatternCardBackProps) {
-  const [difficulty, setDifficulty] = useState<Difficulty>(defaultDifficulty)
+export function PatternCardBack({ pattern, difficulty }: PatternCardBackProps) {
   const { speak, speakAll, isSpeaking, stop } = useSpeech()
   const examples = pattern.examples[difficulty] ?? []
   const sentences = examples.map((ex) => ex.sentence)
@@ -45,12 +31,11 @@ export function PatternCardBack({
         </p>
         <button
           aria-label={isSpeaking ? '정지' : '전체 듣기'}
-          className={cn(
-            'mt-0.5 shrink-0 rounded-full p-2 transition-colors',
+          className={`mt-0.5 shrink-0 rounded-full p-2 transition-colors ${
             isSpeaking
               ? 'bg-[#FFE8E8] text-[#FF6B6B]'
-              : 'bg-[#DCEBFF] text-[#4F8CFF] hover:bg-[#C8DCFF]',
-          )}
+              : 'bg-[#DCEBFF] text-[#4F8CFF] hover:bg-[#C8DCFF]'
+          }`}
           onClick={handleSpeakAll}
           type="button"
         >
@@ -58,57 +43,39 @@ export function PatternCardBack({
         </button>
       </div>
 
-      {/* 난이도 탭 */}
-      <div
-        className="mt-3 grid grid-cols-3 gap-1 rounded-2xl bg-[#F5F8FF] p-1"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {DIFFICULTIES.map((d) => (
-          <button
-            className={cn(
-              'rounded-xl py-1.5 text-[11px] font-bold transition-colors',
-              difficulty === d
-                ? 'bg-white text-[#4F8CFF] shadow-sm'
-                : 'text-[#9EAEC8] hover:text-[#4F8CFF]',
-            )}
-            key={d}
-            onClick={() => { stop(); setDifficulty(d) }}
-            type="button"
-          >
-            {DIFFICULTY_LABELS[d]}
-          </button>
-        ))}
-      </div>
-
       {/* 예문 목록 */}
-      <ol className="mt-3 flex-1 space-y-3 overflow-y-auto">
+      <ol className="mt-4 flex-1 space-y-3 overflow-y-auto">
         {examples.length === 0 ? (
-          <li className="text-center text-xs text-[#C8D8F0]">예문이 없습니다</li>
-        ) : examples.map((ex, index) => (
-          <li className="flex items-start gap-2.5" key={ex.id}>
-            <span className="min-w-[18px] pt-px text-xs font-bold text-[#4F8CFF]">
-              {index + 1}.
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className="text-[0.85rem] font-semibold leading-relaxed text-[#1F2937]">
-                {ex.sentence}
-              </p>
-              {ex.translation && (
-                <p className="mt-0.5 text-[0.75rem] leading-relaxed text-[#9EAEC8]">
-                  {ex.translation}
-                </p>
-              )}
-            </div>
-            <button
-              aria-label={`${index + 1}번 예문 듣기`}
-              className="mt-0.5 shrink-0 rounded-full p-1.5 text-[#C8D8F0] transition-colors hover:bg-[#F0F7FF] hover:text-[#4F8CFF]"
-              onClick={(e) => { e.stopPropagation(); speak(ex.sentence.trim()) }}
-              type="button"
-            >
-              <Volume2 className="h-3.5 w-3.5" />
-            </button>
+          <li className="flex h-full items-center justify-center text-xs text-[#C8D8F0]">
+            예문이 없습니다
           </li>
-        ))}
+        ) : (
+          examples.map((ex, index) => (
+            <li className="flex items-start gap-2.5" key={ex.id}>
+              <span className="min-w-[18px] pt-px text-xs font-bold text-[#4F8CFF]">
+                {index + 1}.
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[0.85rem] font-semibold leading-relaxed text-[#1F2937]">
+                  {ex.sentence}
+                </p>
+                {ex.translation && (
+                  <p className="mt-0.5 text-[0.75rem] leading-relaxed text-[#9EAEC8]">
+                    {ex.translation}
+                  </p>
+                )}
+              </div>
+              <button
+                aria-label={`${index + 1}번 예문 듣기`}
+                className="mt-0.5 shrink-0 rounded-full p-1.5 text-[#C8D8F0] transition-colors hover:bg-[#F0F7FF] hover:text-[#4F8CFF]"
+                onClick={(e) => { e.stopPropagation(); speak(ex.sentence.trim()) }}
+                type="button"
+              >
+                <Volume2 className="h-3.5 w-3.5" />
+              </button>
+            </li>
+          ))
+        )}
       </ol>
     </div>
   )

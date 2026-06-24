@@ -9,7 +9,7 @@ type PatternCardProps = {
   pattern: PatternWithExamples
   isFlipped: boolean
   isFavorited?: boolean
-  defaultDifficulty?: Difficulty
+  difficulty?: Difficulty
   onFlip: () => void
   onToggleFavorite?: () => void
 }
@@ -18,7 +18,7 @@ export function PatternCard({
   pattern,
   isFlipped,
   isFavorited = false,
-  defaultDifficulty = 'normal',
+  difficulty = 'normal',
   onFlip,
   onToggleFavorite,
 }: PatternCardProps) {
@@ -50,7 +50,7 @@ export function PatternCard({
           pattern={pattern}
         />
         <PatternCardBack
-          defaultDifficulty={defaultDifficulty}
+          difficulty={difficulty}
           pattern={pattern}
         />
       </div>

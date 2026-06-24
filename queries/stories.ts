@@ -1,5 +1,6 @@
+import { MINI_STORIES } from '@/lib/mini-stories'
 import { createClient } from '@/lib/supabase/server'
-import type { Difficulty, PatternWithExamples, PatternExample } from '@/types/pattern'
+import type { Difficulty, PatternExample, PatternWithExamples } from '@/types/pattern'
 import type { StoryWithPatterns } from '@/types/story'
 
 const UI_LANG = 'ko'
@@ -13,10 +14,7 @@ export async function getStoryByOrder(orderIndex: number): Promise<StoryWithPatt
     .select(`
       id, level, order_index,
       story_translations!inner(title, description),
-      story_patterns(
-        order_index,
-        pattern_id
-      )
+      story_patterns(order_index, pattern_id)
     `)
     .eq('is_published', true)
     .eq('order_index', orderIndex)
@@ -56,7 +54,7 @@ export async function getStoryByOrder(orderIndex: number): Promise<StoryWithPatt
 
   if (exampleError || !exampleRows) return null
 
-  // 4. 조립
+  // 4. 패턴 조립
   const examplesByPattern = new Map<string, PatternExample[]>()
   for (const ex of exampleRows) {
     const translation = (ex.example_translations as { translation: string }[] | null)?.[0]?.translation ?? null
@@ -83,22 +81,32 @@ export async function getStoryByOrder(orderIndex: number): Promise<StoryWithPatt
     const image = (p.pattern_images as { storage_key: string }[] | null)?.[0] ?? null
     const allExamples = examplesByPattern.get(p.id) ?? []
 
-    const grouped: Record<Difficulty, PatternExample[]> = {
-      normal:   allExamples.filter((e) => e.difficulty === 'normal'),
-      advanced: allExamples.filter((e) => e.difficulty === 'advanced'),
-      native:   allExamples.filter((e) => e.difficulty === 'native'),
-    }
-
     return {
       id: p.id,
       level: p.level as 1 | 2 | 3,
       order_index: p.order_index,
       pattern_text: trans.pattern_text,
       meaning: trans.meaning,
-      image_url: image ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/patto-assets/${image.storage_key}` : null,
-      examples: grouped,
+      image_url: image
+        ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/patto-assets/${image.storage_key}`
+        : null,
+      examples: {
+        normal:   allExamples.filter((e) => e.difficulty === 'normal'),
+        advanced: allExamples.filter((e) => e.difficulty === 'advanced'),
+        native:   allExamples.filter((e) => e.difficulty === 'native'),
+      },
     }
   })
+
+  // 5. 난이도별 미니스토리 결정
+  //    - lib/mini-stories.ts 에 콘텐츠 있으면 사용
+  //    - 없으면 해당 난이도 예문으로 폴백 생성
+  const curated = MINI_STORIES[storyRow.order_index]
+  const mini_stories = {
+    normal:   curated?.normal   ?? buildMiniStory(patterns, 'normal'),
+    advanced: curated?.advanced ?? buildMiniStory(patterns, 'advanced'),
+    native:   curated?.native   ?? buildMiniStory(patterns, 'native'),
+  }
 
   return {
     id: storyRow.id,
@@ -106,7 +114,7 @@ export async function getStoryByOrder(orderIndex: number): Promise<StoryWithPatt
     order_index: storyRow.order_index,
     title: storyTranslation.title,
     description: storyTranslation.description,
-    mini_story: buildMiniStory(patterns),
+    mini_stories,
     patterns,
   }
 }
@@ -120,10 +128,13 @@ export async function getTotalStoryCount(): Promise<number> {
   return count ?? 0
 }
 
-// 패턴 5개의 normal 예문 1번씩 연결해서 미니스토리 생성
-function buildMiniStory(patterns: PatternWithExamples[]): string {
+// 예문이 없는 스토리의 폴백: 해당 난이도 첫 예문을 이어 붙임
+function buildMiniStory(patterns: PatternWithExamples[], difficulty: Difficulty): string {
   return patterns
-    .map((p) => p.examples.normal[0]?.sentence ?? '')
+    .map((p) => {
+      const ex = p.examples[difficulty]?.[0] ?? p.examples.normal?.[0]
+      return ex?.sentence ?? ''
+    })
     .filter(Boolean)
     .join(' ')
 }

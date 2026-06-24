@@ -27,7 +27,7 @@ export function StoryCardEngine({ story, totalStories }: StoryCardEngineProps) {
   const totalCards = story.patterns.length
   const { onPatternView, onToggleFavorite, onStoryProgress, favorites } = useProgress()
   const { progress } = useLearningProgress()
-  const defaultDifficulty = progress.settings.difficulty
+  const difficulty = progress.settings.difficulty
 
   const [cardIndex, setCardIndex] = useState(0)
   const [isFlipped, setIsFlipped] = useState(false)
@@ -171,6 +171,9 @@ export function StoryCardEngine({ story, totalStories }: StoryCardEngineProps) {
 
   if (showCompletion) return <CompletionScreen />
 
+  // 설정 난이도에 맞는 미니스토리 선택 (폴백: normal)
+  const miniStoryText = story.mini_stories[difficulty] || story.mini_stories.normal || ''
+
   // ── 드래그 실시간 스타일 ──
   const cardWidth = cardWrapperRef.current?.offsetWidth ?? 320
   const dragProgress = dragOffset / cardWidth  // -1 ~ +1
@@ -223,7 +226,7 @@ export function StoryCardEngine({ story, totalStories }: StoryCardEngineProps) {
             onRead={handleRead}
             readCount={readCount}
             readGoal={READ_GOAL}
-            text={story.mini_story}
+            text={miniStoryText}
           />
         </div>
       </div>
@@ -254,7 +257,7 @@ export function StoryCardEngine({ story, totalStories }: StoryCardEngineProps) {
           style={dragStyle}
         >
           <PatternCard
-            defaultDifficulty={defaultDifficulty}
+            difficulty={difficulty}
             isFavorited={favorites.has(currentPattern.id)}
             isFlipped={isFlipped}
             onFlip={handleFlip}
