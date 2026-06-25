@@ -55,9 +55,20 @@ export function StoryPage({
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
         <header className="flex items-center justify-end pl-8 pr-6 pt-4 pb-2">
-          <span className="text-[9px] tracking-[0.25em] text-[#C8BFB5]">
-            {String(story.id).padStart(2, '0')} / 100
-          </span>
+          <button
+            type="button"
+            onClick={onOpenPicker}
+            aria-label="스토리 선택"
+            className="flex items-center gap-1.5 group cursor-pointer"
+          >
+            <span className="text-[9px] tracking-[0.2em] font-semibold text-[#8B2246] group-hover:opacity-70 transition-opacity">
+              STORY {String(story.id).padStart(2, '0')}
+            </span>
+            <span className="text-[9px] text-[#D8D0C8]">·</span>
+            <span className="text-[9px] tracking-[0.05em] text-[#9B9490] group-hover:text-[#8B2246] transition-colors max-w-[140px] truncate">
+              {story.title}
+            </span>
+          </button>
         </header>
 
         <div className="pl-8 pr-6 pb-6">

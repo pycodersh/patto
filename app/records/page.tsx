@@ -1,4 +1,4 @@
-import { BookOpen, Bookmark, Flame, Clock, Star } from 'lucide-react'
+import { BookOpen, Bookmark, Flame, Clock, Star, Library } from 'lucide-react'
 
 import { TopNav } from '@/components/TopNav'
 import { createClient } from '@/lib/supabase/server'
@@ -6,21 +6,17 @@ import { getProgressStats } from '@/queries/progress'
 
 export const dynamic = 'force-dynamic'
 
-// ── Calendar helpers ──────────────────────────────────────────────────
+// ── Calendar ─────────────────────────────────────────────────────────
 function buildCalendar(studiedDates: string[]) {
   const dateSet = new Set(studiedDates)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-
-  // Align to last Monday (ISO week: Mon=1)
-  const dow = today.getDay() // 0=Sun
+  const dow = today.getDay()
   const toMonday = dow === 0 ? 6 : dow - 1
   const lastMonday = new Date(today.getTime() - toMonday * 86400000)
-
-  // Build 5 weeks × 7 days starting from 4 weeks before lastMonday
   const startDate = new Date(lastMonday.getTime() - 4 * 7 * 86400000)
-  const weeks: { iso: string; studied: boolean; isToday: boolean; future: boolean }[][] = []
 
+  const weeks: { iso: string; studied: boolean; isToday: boolean; future: boolean }[][] = []
   for (let w = 0; w < 5; w++) {
     const week = []
     for (let d = 0; d < 7; d++) {
@@ -43,71 +39,78 @@ function CalendarGrid({ studiedDates }: { studiedDates: string[] }) {
   const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
   return (
-    <div>
-      {/* Day labels */}
-      <div className="flex gap-1.5 mb-2">
+    <div className="w-full">
+      <div className="flex justify-between mb-3">
         {DAY_LABELS.map((d, i) => (
-          <div key={i} className="w-7 text-center text-[11px] text-[#C8BFB5] font-medium">
+          <div key={i} className="flex-1 text-center text-[11px] font-medium text-[#C8BFB5]">
             {d}
           </div>
         ))}
       </div>
-      {/* Week rows */}
-      {weeks.map((week, wi) => (
-        <div key={wi} className="flex gap-1.5 mb-1.5">
-          {week.map((day) => (
-            <div
-              key={day.iso}
-              title={day.iso}
-              className={[
-                'w-7 h-7 rounded-full',
-                day.future
-                  ? 'bg-transparent'
-                  : day.studied
-                  ? 'bg-[#8B2246]'
-                  : 'bg-[#EDE5DC]',
-                day.isToday && !day.studied
-                  ? 'ring-1 ring-[#8B2246] ring-offset-1'
-                  : '',
-              ].join(' ')}
-            />
-          ))}
-        </div>
-      ))}
+      <div className="space-y-2">
+        {weeks.map((week, wi) => (
+          <div key={wi} className="flex justify-between">
+            {week.map((day) => (
+              <div
+                key={day.iso}
+                className={[
+                  'flex-1 mx-0.5 aspect-square rounded-full',
+                  day.future
+                    ? ''
+                    : day.studied
+                    ? 'bg-[#8B2246]'
+                    : 'bg-[#EDE5DC]',
+                  day.isToday && !day.studied
+                    ? 'ring-1 ring-[#8B2246] ring-offset-[1.5px] ring-offset-[#FAF8F4]'
+                    : '',
+                ].join(' ')}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
 
-// ── Stat row ─────────────────────────────────────────────────────────
-function StatRow({
+// ── Stat cell (2-column grid item) ───────────────────────────────────
+function StatCell({
   label,
   value,
   sub,
   icon: Icon,
   barPct,
+  border = 'right',
 }: {
   label: string
   value: string
   sub?: string
   icon?: React.ComponentType<{ className?: string; strokeWidth?: number }>
   barPct?: number
+  border?: 'right' | 'none'
 }) {
   return (
-    <div className="py-6 border-b border-[#EDE5DC]">
-      <div className="flex items-start justify-between mb-1">
-        <p className="text-[10px] tracking-[0.28em] text-[#8B2246] font-semibold">{label}</p>
-        {Icon && <Icon className="w-4 h-4 text-[#C8BFB5] mt-0.5" strokeWidth={1.6} />}
+    <div
+      className={[
+        'py-6 px-0',
+        border === 'right' ? 'pr-5 border-r border-[#EDE5DC]' : 'pl-5',
+      ].join(' ')}
+    >
+      <div className="flex items-center gap-1.5 mb-3">
+        {Icon && <Icon className="w-3 h-3 text-[#8B2246]" strokeWidth={1.8} />}
+        <p className="text-[9px] tracking-[0.22em] text-[#8B2246] font-semibold leading-none">
+          {label}
+        </p>
       </div>
-      <p className="font-playfair text-[2.6rem] font-bold text-[#1A1A1A] leading-none mt-2">
+      <p className="font-playfair text-[2.2rem] font-bold text-[#1A1A1A] leading-none">
         {value}
       </p>
-      {sub && <p className="text-base text-[#9B9490] mt-1.5">{sub}</p>}
+      {sub && (
+        <p className="text-sm text-[#9B9490] mt-1.5 leading-snug">{sub}</p>
+      )}
       {barPct !== undefined && (
-        <div className="mt-3 h-[2px] bg-[#EDE5DC] rounded-full overflow-hidden">
-          <div
-            className="h-full bg-[#8B2246] rounded-full"
-            style={{ width: `${barPct}%` }}
-          />
+        <div className="mt-3 h-[1.5px] bg-[#EDE5DC] rounded-full overflow-hidden">
+          <div className="h-full bg-[#8B2246] rounded-full" style={{ width: `${barPct}%` }} />
         </div>
       )}
     </div>
@@ -140,7 +143,6 @@ export default async function RecordsPage() {
   const totalPatterns = total * 5
   const studyHours = Math.round((stats.totalReviewCount * 3) / 60)
 
-  // Streak
   const streakDays = (() => {
     const dates = [...(stats.studiedDates ?? [])].sort().reverse()
     if (!dates.length) return 0
@@ -160,79 +162,90 @@ export default async function RecordsPage() {
     <div className="min-h-dvh bg-[#FAF8F4]">
       <TopNav />
 
-      <div className="pt-11 pl-6 pr-6 pb-16 max-w-sm mx-auto">
-        {/* Page title */}
+      <div className="pt-11 px-6 pb-16 max-w-sm mx-auto">
+        {/* Title */}
         <div className="pt-8 pb-6 border-b border-[#EDE5DC]">
           <h1 className="font-playfair text-[2.8rem] font-black leading-none text-[#1A1A1A] tracking-tight">
             PROGRESS
           </h1>
-          <p className="text-base text-[#9B9490] mt-2">나의 학습 기록</p>
+          <p className="text-sm text-[#9B9490] mt-2">나의 학습 기록</p>
         </div>
 
-        {/* ── Learning Calendar ── */}
+        {/* ── Calendar ── */}
         <div className="py-6 border-b border-[#EDE5DC]">
-          <p className="text-[10px] tracking-[0.28em] text-[#8B2246] font-semibold mb-5">
+          <p className="text-[9px] tracking-[0.28em] text-[#8B2246] font-semibold mb-5">
             LEARNING CALENDAR
           </p>
           <CalendarGrid studiedDates={stats.studiedDates ?? []} />
         </div>
 
-        {/* ── Stats — typography-first, no cards ── */}
-        <StatRow
-          label="STORIES COMPLETED"
-          value={String(stats.completedStories)}
-          sub={`/ ${total} stories`}
-          icon={BookOpen}
-          barPct={Math.round((stats.completedStories / total) * 100)}
-        />
-
-        <StatRow
-          label="PATTERNS LEARNED"
-          value={String(stats.totalPatternsSeen)}
-          sub={`/ ${totalPatterns} patterns`}
-          barPct={Math.round((stats.totalPatternsSeen / totalPatterns) * 100)}
-        />
-
-        <StatRow
-          label="CURRENT STREAK"
-          value={String(streakDays)}
-          sub="days in a row"
-          icon={Flame}
-        />
-
-        <StatRow
-          label="STUDY TIME"
-          value={String(studyHours)}
-          sub="hours total"
-          icon={Clock}
-        />
-
-        <StatRow
-          label="SAVED PATTERNS"
-          value={String(stats.favoritesCount)}
-          icon={Bookmark}
-        />
-
-        {/* Pattern Library */}
-        <div className="py-6 border-b border-[#EDE5DC]">
-          <p className="text-[10px] tracking-[0.28em] text-[#8B2246] font-semibold mb-4">
-            PATTERN LIBRARY
-          </p>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-base text-[#1A1A1A]">Total Reviewed</p>
-              <p className="text-[#9B9490] text-sm mt-0.5">패턴 복습 횟수</p>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Star className="w-3.5 h-3.5 text-[#8B2246]" strokeWidth={1.6} />
-              <span className="font-playfair text-xl font-bold text-[#1A1A1A]">
-                {stats.totalReviewCount}
-              </span>
-            </div>
-          </div>
+        {/* ── 2-column stat grid ── */}
+        <div className="grid grid-cols-2 border-b border-[#EDE5DC]">
+          <StatCell
+            label="STORIES"
+            value={String(stats.completedStories)}
+            sub={`/ ${total} completed`}
+            icon={BookOpen}
+            barPct={Math.round((stats.completedStories / total) * 100)}
+            border="right"
+          />
+          <StatCell
+            label="PATTERNS"
+            value={String(stats.totalPatternsSeen)}
+            sub={`/ ${totalPatterns} learned`}
+            barPct={Math.round((stats.totalPatternsSeen / totalPatterns) * 100)}
+            border="none"
+          />
         </div>
 
-        {/* Footer */}
+        <div className="grid grid-cols-2 border-b border-[#EDE5DC]">
+          <StatCell
+            label="STREAK"
+            value={`${streakDays}`}
+            sub="days in a row"
+            icon={Flame}
+            border="right"
+          />
+          <StatCell
+            label="STUDY TIME"
+            value={`${studyHours}`}
+            sub="hours total"
+            icon={Clock}
+            border="none"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 border-b border-[#EDE5DC]">
+          <StatCell
+            label="SAVED"
+            value={String(stats.favoritesCount)}
+            sub="patterns saved"
+            icon={Bookmark}
+            border="right"
+          />
+          <StatCell
+            label="REVIEWED"
+            value={String(stats.totalReviewCount)}
+            sub="total reviews"
+            icon={Star}
+            border="none"
+          />
+        </div>
+
+        {/* Pattern Library row — full width */}
+        <div className="py-6 border-b border-[#EDE5DC] flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Library className="w-3.5 h-3.5 text-[#8B2246]" strokeWidth={1.8} />
+            <div>
+              <p className="text-[9px] tracking-[0.22em] text-[#8B2246] font-semibold">PATTERN LIBRARY</p>
+              <p className="text-sm text-[#9B9490] mt-0.5">저장된 패턴 모음</p>
+            </div>
+          </div>
+          <span className="font-playfair text-[1.8rem] font-bold text-[#1A1A1A]">
+            {stats.favoritesCount}
+          </span>
+        </div>
+
         <p className="text-[10px] tracking-[0.2em] text-[#D8D0C8] text-center pt-10">
           SPEAK NATURALLY. CONNECT DEEPLY.
         </p>
