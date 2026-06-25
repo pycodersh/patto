@@ -46,7 +46,7 @@ export default function SettingsPage() {
     <div className="min-h-dvh bg-[#FAF8F4]">
       <TopNav />
 
-      <div style={{ paddingTop: NAV_HEIGHT + 16 }} className="px-6 pb-16 max-w-sm mx-auto">
+      <div style={{ paddingTop: NAV_HEIGHT + 24 }} className="px-6 pb-16 max-w-sm mx-auto">
         {/* Page title */}
         <div className="pt-6 pb-5 border-b border-[#EDE5DC]">
           <h1 className="font-playfair text-[2.8rem] font-black leading-none text-[#1A1A1A] tracking-tight">
