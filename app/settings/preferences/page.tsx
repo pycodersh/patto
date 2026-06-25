@@ -91,7 +91,7 @@ export default function PreferencesPage() {
             PREFERENCES
           </h1>
           <p className="text-[0.78rem] text-[#9B9490] mt-2 tracking-wide">
-            Customize your learning experience
+            학습 환경을 나에게 맞게 조정하세요
           </p>
         </div>
 
@@ -106,7 +106,7 @@ export default function PreferencesPage() {
             </div>
             <div className="flex-1">
               <p className="font-semibold text-[14px] text-[#1A1A1A]">Theme</p>
-              <p className="text-[11.5px] text-[#9B9490] mt-0.5">Choose your preferred visual mode</p>
+              <p className="text-[11.5px] text-[#9B9490] mt-0.5">라이트 또는 다크 모드를 선택하세요</p>
               <ChipGroup
                 options={[{ label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }]}
                 value={theme}
@@ -121,7 +121,7 @@ export default function PreferencesPage() {
             </div>
             <div className="flex-1">
               <p className="font-semibold text-[14px] text-[#1A1A1A]">Font Size</p>
-              <p className="text-[11.5px] text-[#9B9490] mt-0.5">Adjust reading comfort</p>
+              <p className="text-[11.5px] text-[#9B9490] mt-0.5">읽기 편한 글자 크기를 설정하세요</p>
               <ChipGroup
                 options={[
                   { label: 'Small', value: 'small' },
@@ -141,13 +141,13 @@ export default function PreferencesPage() {
           <SettingRow
             icon={Mic}
             label="Speech Rate"
-            desc="Reading speed for audio playback"
+            desc="오디오 재생 속도"
             value="Normal"
           />
           <SettingRow
             icon={Mic}
             label="Voice"
-            desc="Text-to-speech voice accent"
+            desc="TTS 음성 언어 및 억양"
             value="en-US"
             last
           />
@@ -159,13 +159,13 @@ export default function PreferencesPage() {
           <SettingRow
             icon={Globe}
             label="App Language"
-            desc="Interface display language"
+            desc="앱 인터페이스 표시 언어"
             value="한국어"
           />
           <SettingRow
             icon={BookOpen}
             label="Translation"
-            desc="Story translation target language"
+            desc="스토리 번역 대상 언어"
             value="Korean"
             last
           />

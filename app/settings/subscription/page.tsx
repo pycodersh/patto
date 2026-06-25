@@ -6,11 +6,11 @@ import { ChevronLeft, Check, Sparkles, Zap, Calendar } from 'lucide-react'
 import { TopNav, NAV_HEIGHT } from '@/components/TopNav'
 
 const FEATURES = [
-  'Unlimited Stories',
-  'Unlimited Pattern Access',
-  'AI Sentence Explanation',
-  'Vocabulary Collection',
-  'Shadowing Practice',
+  '스토리 무제한 열람',
+  '패턴 전체 접근',
+  'AI 문장 해설',
+  '단어 컬렉션',
+  '쉐도잉 연습',
 ]
 
 const PLANS = [
@@ -18,7 +18,7 @@ const PLANS = [
     id: 'monthly',
     icon: Zap,
     label: 'Premium Monthly',
-    sublabel: 'Flexible, cancel anytime',
+    sublabel: '언제든 해지 가능',
     price: '$4.99',
     period: '/ month',
     badge: null,
@@ -27,7 +27,7 @@ const PLANS = [
     id: 'annual',
     icon: Calendar,
     label: 'Premium Annual',
-    sublabel: 'Save 33% versus monthly',
+    sublabel: '월간 대비 33% 절약',
     price: '$39.99',
     period: '/ year',
     badge: 'BEST VALUE',
@@ -56,7 +56,7 @@ export default function SubscriptionPage() {
             SUBSCRIPTION
           </h1>
           <p className="text-[0.78rem] text-[#9B9490] mt-2 tracking-wide">
-            Unlock the full PATTO experience
+            PATTO의 모든 기능을 경험해보세요
           </p>
         </div>
 
@@ -68,7 +68,7 @@ export default function SubscriptionPage() {
           <div>
             <p className="text-[10px] tracking-[0.18em] text-[#8B2246] font-bold mb-0.5">CURRENT PLAN</p>
             <p className="text-[15px] font-bold text-[#1A1A1A]">Free</p>
-            <p className="text-[11px] text-[#9B9490] mt-0.5">Upgrade to unlock all features</p>
+            <p className="text-[11px] text-[#9B9490] mt-0.5">업그레이드하여 모든 기능을 이용하세요</p>
           </div>
         </div>
 
@@ -154,7 +154,7 @@ export default function SubscriptionPage() {
         </button>
 
         <p className="text-center text-[10px] text-[#C8BFB5] mt-4">
-          Cancel anytime · No hidden fees
+          언제든 해지 가능 · 숨은 비용 없음
         </p>
       </div>
 

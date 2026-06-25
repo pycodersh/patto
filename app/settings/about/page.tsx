@@ -6,14 +6,14 @@ const ITEMS = [
   {
     icon: ScrollText,
     label: 'Terms of Service',
-    desc: 'Rules and agreements for using PATTO',
+    desc: 'PATTO 이용 규칙 및 약관',
     href: '/settings/about/terms',
     value: null,
   },
   {
     icon: Shield,
     label: 'Privacy Policy',
-    desc: 'How we collect, use, and protect your data',
+    desc: '개인정보 수집·이용·보호 방침',
     href: '/settings/about/privacy',
     value: null,
   },
@@ -27,14 +27,14 @@ const ITEMS = [
   {
     icon: Code2,
     label: 'Open Source Licenses',
-    desc: 'Third-party software used in PATTO',
+    desc: 'PATTO에 사용된 오픈소스 소프트웨어',
     href: null,
     value: null,
   },
   {
     icon: Info,
     label: 'Version',
-    desc: 'Current app version',
+    desc: '현재 앱 버전',
     href: null,
     value: '1.0.0',
   },
@@ -59,7 +59,7 @@ export default function AboutPage() {
             ABOUT
           </h1>
           <p className="text-[0.78rem] text-[#9B9490] mt-2 tracking-wide">
-            Terms, privacy and app information
+            이용약관, 개인정보 및 앱 정보
           </p>
         </div>
 

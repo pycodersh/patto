@@ -9,22 +9,22 @@ const MAIN_ITEMS = [
   {
     icon: User,
     label: 'Profile',
-    desc: 'Edit your display name and photo',
+    desc: '닉네임과 프로필 사진 수정',
   },
   {
     icon: LogIn,
     label: 'Sign In',
-    desc: 'Log in to sync your progress across devices',
+    desc: '로그인하여 기기 간 학습 데이터를 동기화하세요',
   },
   {
     icon: UserPlus,
     label: 'Sign Up',
-    desc: 'Create a free account to save your learning history',
+    desc: '무료 계정을 만들고 학습 기록을 저장하세요',
   },
   {
     icon: LogOut,
     label: 'Sign Out',
-    desc: 'Log out from this device',
+    desc: '이 기기에서 로그아웃',
   },
 ]
 
@@ -32,7 +32,7 @@ const DANGER_ITEMS = [
   {
     icon: Trash2,
     label: 'Delete Account',
-    desc: 'Permanently remove your account and all data',
+    desc: '계정과 모든 데이터를 영구적으로 삭제합니다',
   },
 ]
 
@@ -117,7 +117,7 @@ export default function AccountPage() {
             ACCOUNT
           </h1>
           <p className="text-[0.78rem] text-[#9B9490] mt-2 tracking-wide">
-            Profile and authentication
+            프로필 및 계정 인증
           </p>
         </div>
 
@@ -128,7 +128,7 @@ export default function AccountPage() {
           </div>
           <div>
             <p className="text-[13px] font-bold text-[#1A1A1A]">Guest</p>
-            <p className="text-[11px] text-[#9B9490] mt-0.5">Sign in to sync your progress</p>
+            <p className="text-[11px] text-[#9B9490] mt-0.5">로그인하면 학습 기록이 동기화됩니다</p>
           </div>
         </div>
 
