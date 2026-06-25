@@ -1,0 +1,22 @@
+import { notFound } from 'next/navigation'
+
+import { MagazineEngine } from '@/components/MagazineEngine'
+import { magazineStories } from '@/data/magazine-stories'
+
+type Props = {
+  params: Promise<{ id: string }>
+}
+
+export function generateStaticParams() {
+  return magazineStories.map((s) => ({ id: String(s.id) }))
+}
+
+export default async function StoryDetailPage({ params }: Props) {
+  const { id } = await params
+  const storyId = Number(id)
+  const story = magazineStories.find((s) => s.id === storyId)
+
+  if (!story) notFound()
+
+  return <MagazineEngine story={story} totalStories={magazineStories.length} />
+}

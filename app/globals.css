@@ -10,6 +10,7 @@
   --color-foreground: var(--foreground);
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
   --font-mono: "Courier New", Courier, monospace;
+  --font-playfair: var(--font-playfair);
 }
 
 * {

@@ -1,0 +1,28 @@
+export type MagazineParagraph = {
+  id: string
+  english: string
+  koreanTranslation: string
+  keyExpressions: string[]
+}
+
+export type MagazinePattern = {
+  id: string
+  pattern: string
+  meaningKo: string
+  storySentence: string
+  storySentenceKo: string
+  variationSentence: string
+  variationSentenceKo: string
+}
+
+export type MagazineStory = {
+  id: number
+  title: string
+  subtitleKo: string
+  imageUrl: string
+  imageAlt: string
+  storyNote?: string
+  highlightPhrases: string[]
+  paragraphs: MagazineParagraph[]
+  patterns: MagazinePattern[]
+}
