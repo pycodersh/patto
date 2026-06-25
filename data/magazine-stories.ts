@@ -5,8 +5,8 @@ export const magazineStories: MagazineStory[] = [
     id: 1,
     title: 'The Unexpected Party',
     subtitleKo: '예상치 못한 파티',
-    imageUrl: 'https://images.unsplash.com/photo-1543007630-9359815b5b52?auto=format&fit=crop&w=800&q=80',
-    imageAlt: 'Friends at a cozy dinner party with candles and wine',
+    imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80',
+    imageAlt: 'Friends celebrating at a warm evening party',
     storyNote: '가끔 계획에 없던 순간이 가장 좋은 추억이 되기도 해요.',
     highlightPhrases: [
       'I just wanted to relax at home',
@@ -288,8 +288,8 @@ export const magazineStories: MagazineStory[] = [
     id: 4,
     title: 'At the Airport',
     subtitleKo: '공항에서',
-    imageUrl: 'https://images.unsplash.com/photo-1544015759-62b3a84e26f5?auto=format&fit=crop&w=800&q=80',
-    imageAlt: 'Bright airport terminal with departing passengers',
+    imageUrl: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80',
+    imageAlt: 'View from an airplane window before takeoff',
     storyNote: '여행은 목적지보다 출발하는 순간이 더 설레는 것 같아요.',
     highlightPhrases: [
       'I\'m looking forward to seeing',

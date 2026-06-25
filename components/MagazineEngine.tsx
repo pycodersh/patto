@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Volume2, X } from 'lucide-react'
 
-import { TopNav } from '@/components/TopNav'
+import { TopNav, NAV_HEIGHT } from '@/components/TopNav'
 import { PatternsPage } from '@/components/PatternsPage'
 import { StoryPage } from '@/components/StoryPage'
 import { WheelPicker } from '@/components/WheelPicker'
@@ -144,8 +144,7 @@ export function MagazineEngine({ story, allStories }: MagazineEngineProps) {
     : `translateX(${basePercent}%)`
 
   return (
-    // Outer clip: below fixed TopNav (44px), hides off-screen page
-    <div className="relative overflow-hidden" style={{ marginTop: 44, height: 'calc(100dvh - 44px)' }}>
+    <div className="relative overflow-hidden" style={{ marginTop: NAV_HEIGHT, height: `calc(100dvh - ${NAV_HEIGHT}px)` }}>
       <TopNav />
 
       {/* Sliding rail */}
@@ -166,8 +165,9 @@ export function MagazineEngine({ story, allStories }: MagazineEngineProps) {
           <StoryPage
             story={story}
             totalStories={allStories.length}
-            onNext={() => switchView('patterns')}
+            onToPatterns={() => switchView('patterns')}
             onPrevStory={story.id > 1 ? goPrevStory : undefined}
+            onNextStory={story.id < allStories.length ? goNextStory : undefined}
             onOpenPicker={() => setShowPicker(true)}
             onOpenPopup={setPopup}
             speakAll={speakAll}

@@ -46,7 +46,7 @@ export default function SettingsPage() {
     <div className="min-h-dvh bg-[#FAF8F4]">
       <TopNav />
 
-      <div className="pt-11 px-6 pb-16 max-w-sm mx-auto">
+      <div className="pt-[72px] px-6 pb-16 max-w-sm mx-auto">
         {/* Title */}
         <div className="pt-8 pb-6 border-b border-[#EDE5DC]">
           <h1 className="font-playfair text-[2.8rem] font-black leading-none text-[#1A1A1A] tracking-tight">
