@@ -214,7 +214,7 @@ export function MagazineEngine({ story, allStories }: MagazineEngineProps) {
             </div>
 
             {/* English (italic) */}
-            <p className="font-playfair text-[0.78rem] text-[#9B9490] leading-relaxed mb-2 italic">
+            <p className="font-playfair text-[0.78rem] text-[#9B9490] leading-relaxed mb-2">
               {popup.english}
             </p>
 
