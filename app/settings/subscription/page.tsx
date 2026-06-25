@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { ChevronLeft, Check, Sparkles, Zap, Calendar } from 'lucide-react'
-import { TopNav, NAV_HEIGHT } from '@/components/TopNav'
+import { TopNav } from '@/components/TopNav'
 
 const FEATURES = [
   '스토리 무제한 열람',
@@ -39,49 +39,49 @@ export default function SubscriptionPage() {
   const [toast, setToast] = useState(false)
 
   return (
-    <div className="min-h-dvh bg-[#FAF8F4]">
+    <div className="min-h-dvh bg-[var(--pb)]">
       <TopNav />
 
       <div className="px-7 pb-28 max-w-sm mx-auto pt-20">
         <Link
           href="/settings"
-          className="flex items-center gap-1.5 text-[#9B9490] hover:text-[#8B2246] transition-colors mb-8 w-fit"
+          className="flex items-center gap-1.5 text-[var(--pm)] hover:text-[var(--pa)] transition-colors mb-8 w-fit"
         >
           <ChevronLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
           <span className="text-[10px] tracking-[0.18em] font-bold">SETTINGS</span>
         </Link>
 
         <div className="mb-8">
-          <h1 className="font-playfair text-[1.9rem] font-black leading-none text-[#1A1A1A] tracking-tight">
+          <h1 className="font-playfair text-[1.9rem] font-black leading-none text-[var(--pt)] tracking-tight">
             SUBSCRIPTION
           </h1>
-          <p className="text-[0.78rem] text-[#9B9490] mt-2 tracking-wide">
+          <p className="text-[0.78rem] text-[var(--pm)] mt-2 tracking-wide">
             PATTO의 모든 기능을 경험해보세요
           </p>
         </div>
 
-        {/* Current plan status card */}
-        <div className="rounded-2xl bg-[#F0EAE2] px-5 py-4 mb-10 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full bg-[#8B2246]/15 flex items-center justify-center shrink-0">
-            <Sparkles className="w-5 h-5 text-[#8B2246]" strokeWidth={1.5} />
+        {/* Current plan card */}
+        <div className="rounded-2xl bg-[var(--pc)] px-5 py-4 mb-10 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-full bg-[var(--pa)]/15 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 text-[var(--pa)]" strokeWidth={1.5} />
           </div>
           <div>
-            <p className="text-[10px] tracking-[0.18em] text-[#8B2246] font-bold mb-0.5">CURRENT PLAN</p>
-            <p className="text-[15px] font-bold text-[#1A1A1A]">Free</p>
-            <p className="text-[11px] text-[#9B9490] mt-0.5">업그레이드하여 모든 기능을 이용하세요</p>
+            <p className="text-[10px] tracking-[0.18em] text-[var(--pa)] font-bold mb-0.5">CURRENT PLAN</p>
+            <p className="text-[15px] font-bold text-[var(--pt)]">Free</p>
+            <p className="text-[11px] text-[var(--pm)] mt-0.5">업그레이드하여 모든 기능을 이용하세요</p>
           </div>
         </div>
 
         {/* Features */}
-        <div className="mb-8 pb-8 border-b border-[#EDE5DC]">
-          <p className="text-[10px] tracking-[0.22em] text-[#8B2246] font-bold mb-5">PREMIUM INCLUDES</p>
+        <div className="mb-8 pb-8 border-b border-[var(--pd)]">
+          <p className="text-[10px] tracking-[0.22em] text-[var(--pa)] font-bold mb-5">PREMIUM INCLUDES</p>
           <div className="space-y-4">
             {FEATURES.map((f) => (
               <div key={f} className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-[#8B2246]/10 flex items-center justify-center shrink-0">
-                  <Check className="w-3 h-3 text-[#8B2246]" strokeWidth={2.5} />
+                <div className="w-5 h-5 rounded-full bg-[var(--pa)]/10 flex items-center justify-center shrink-0">
+                  <Check className="w-3 h-3 text-[var(--pa)]" strokeWidth={2.5} />
                 </div>
-                <span className="text-[13px] text-[#3A3A3A] font-medium">{f}</span>
+                <span className="text-[13px] text-[var(--pt2)] font-medium">{f}</span>
               </div>
             ))}
           </div>
@@ -89,7 +89,7 @@ export default function SubscriptionPage() {
 
         {/* Plan selection */}
         <div className="mb-8">
-          <p className="text-[10px] tracking-[0.22em] text-[#8B2246] font-bold mb-5">CHOOSE A PLAN</p>
+          <p className="text-[10px] tracking-[0.22em] text-[var(--pa)] font-bold mb-5">CHOOSE A PLAN</p>
           <div className="space-y-3">
             {PLANS.map((plan) => {
               const PlanIcon = plan.icon
@@ -101,41 +101,34 @@ export default function SubscriptionPage() {
                   onClick={() => setSelected(plan.id)}
                   className={`w-full text-left rounded-2xl border-2 px-5 py-4 transition-all cursor-pointer ${
                     isSelected
-                      ? 'border-[#8B2246] bg-[#FDF8F9]'
-                      : 'border-[#EDE5DC] bg-white hover:border-[#C8A8B2]'
+                      ? 'border-[var(--pa)] bg-[var(--pal)]'
+                      : 'border-[var(--pd)] bg-[var(--pw)] hover:border-[var(--pm2)]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
-                      <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                          isSelected ? 'bg-[#8B2246]/10' : 'bg-[#F5EFE9]'
-                        }`}
-                      >
-                        <PlanIcon
-                          className={`w-4 h-4 ${isSelected ? 'text-[#8B2246]' : 'text-[#9B9490]'}`}
-                          strokeWidth={1.6}
-                        />
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors ${isSelected ? 'bg-[var(--pa)]/10' : 'bg-[var(--pc2)]'}`}>
+                        <PlanIcon className={`w-4 h-4 ${isSelected ? 'text-[var(--pa)]' : 'text-[var(--pm)]'}`} strokeWidth={1.6} />
                       </div>
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className={`font-bold text-[13px] ${isSelected ? 'text-[#1A1A1A]' : 'text-[#3A3A3A]'}`}>
+                          <p className={`font-bold text-[13px] ${isSelected ? 'text-[var(--pt)]' : 'text-[var(--pt2)]'}`}>
                             {plan.label}
                           </p>
                           {plan.badge && (
-                            <span className="text-[8px] tracking-[0.15em] bg-[#8B2246] text-white px-2 py-0.5 rounded-full font-bold">
+                            <span className="text-[8px] tracking-[0.15em] bg-[var(--pa)] text-white px-2 py-0.5 rounded-full font-bold">
                               {plan.badge}
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-[#9B9490] mt-0.5">{plan.sublabel}</p>
+                        <p className="text-[11px] text-[var(--pm)] mt-0.5">{plan.sublabel}</p>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className={`font-playfair text-[1.3rem] font-bold leading-none ${isSelected ? 'text-[#8B2246]' : 'text-[#3A3A3A]'}`}>
+                      <p className={`font-playfair text-[1.3rem] font-bold leading-none ${isSelected ? 'text-[var(--pa)]' : 'text-[var(--pt2)]'}`}>
                         {plan.price}
                       </p>
-                      <p className="text-[10px] text-[#9B9490] mt-0.5">{plan.period}</p>
+                      <p className="text-[10px] text-[var(--pm)] mt-0.5">{plan.period}</p>
                     </div>
                   </div>
                 </button>
@@ -148,19 +141,19 @@ export default function SubscriptionPage() {
         <button
           type="button"
           onClick={() => { setToast(true); setTimeout(() => setToast(false), 2800) }}
-          className="w-full py-4 bg-[#8B2246] text-white font-bold tracking-[0.12em] rounded-2xl text-[13px] hover:bg-[#7A1D3F] active:bg-[#6A1835] transition-colors cursor-pointer"
+          className="w-full py-4 bg-[var(--pa)] text-white font-bold tracking-[0.12em] rounded-2xl text-[13px] hover:opacity-90 active:opacity-80 transition-opacity cursor-pointer"
         >
           SUBSCRIBE
         </button>
 
-        <p className="text-center text-[10px] text-[#C8BFB5] mt-4">
+        <p className="text-center text-[10px] text-[var(--pm2)] mt-4">
           언제든 해지 가능 · 숨은 비용 없음
         </p>
       </div>
 
       {toast && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[#1A1A1A] text-white text-[12px] px-5 py-2.5 rounded-full shadow-lg tracking-wide z-50 whitespace-nowrap">
-          Payment system coming soon
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[var(--pt)] text-[var(--pb)] text-[12px] px-5 py-2.5 rounded-full shadow-lg tracking-wide z-50 whitespace-nowrap">
+          결제 시스템 준비 중입니다.
         </div>
       )}
     </div>

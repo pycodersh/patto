@@ -23,10 +23,9 @@ export function TopNav() {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-40 bg-[#FAF8F4]/96 backdrop-blur-sm border-b border-[#EDE5DC]"
-      style={{ height: NAV_HEIGHT }}
+      className="fixed top-0 left-0 right-0 z-40 backdrop-blur-sm border-b border-[var(--pd)]"
+      style={{ height: NAV_HEIGHT, background: 'var(--pnav)' }}
     >
-      {/* Single row — PATTO brand tab + nav tabs, all aligned to bottom */}
       <div className="flex items-end gap-1.5 px-3 h-full pb-0">
 
         {/* PATTO brand tab */}
@@ -37,12 +36,12 @@ export function TopNav() {
             height: 38,
             paddingLeft: 14,
             paddingRight: 14,
-            background: '#EDE5DC',
+            background: 'var(--pd)',
             borderRadius: '7px 7px 0 0',
             fontSize: 13,
             letterSpacing: '0.22em',
             fontWeight: 800,
-            color: '#1A1A1A',
+            color: 'var(--pt)',
           }}
         >
           PATTO
@@ -60,12 +59,12 @@ export function TopNav() {
                 height: 28,
                 paddingLeft: 10,
                 paddingRight: 10,
-                background: isActive ? '#8B2246' : '#EDE5DC',
+                background: isActive ? 'var(--pa)' : 'var(--pd)',
                 borderRadius: '6px 6px 0 0',
                 fontSize: 8,
                 letterSpacing: '0.14em',
                 fontWeight: isActive ? 700 : 600,
-                color: isActive ? '#FAF8F4' : '#B8AFA8',
+                color: isActive ? 'var(--pb)' : 'var(--pm)',
                 whiteSpace: 'nowrap',
               }}
             >

@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { ChevronLeft, Sun, Moon, Type, Mic, Globe, BookOpen } from 'lucide-react'
-import { TopNav, NAV_HEIGHT } from '@/components/TopNav'
+import { TopNav } from '@/components/TopNav'
+import { useTheme } from '@/components/ThemeProvider'
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] tracking-[0.22em] text-[#8B2246] font-bold mb-4 mt-8 first:mt-0">
+    <p className="text-[10px] tracking-[0.22em] text-[var(--pa)] font-bold mb-4 mt-8 first:mt-0">
       {children}
     </p>
   )
@@ -31,8 +32,8 @@ function ChipGroup({
           onClick={() => onChange(o.value)}
           className={`px-4 py-1.5 rounded-full text-[12px] font-semibold border transition-colors cursor-pointer ${
             value === o.value
-              ? 'bg-[#8B2246] text-white border-[#8B2246]'
-              : 'bg-transparent text-[#9B9490] border-[#D8D0C8] hover:border-[#8B2246] hover:text-[#8B2246]'
+              ? 'bg-[var(--pa)] text-white border-[var(--pa)]'
+              : 'bg-transparent text-[var(--pm)] border-[var(--pd)] hover:border-[var(--pa)] hover:text-[var(--pa)]'
           }`}
         >
           {o.label}
@@ -56,72 +57,72 @@ function SettingRow({
   last?: boolean
 }) {
   return (
-    <div className={`flex items-start gap-4 py-5 ${last ? '' : 'border-b border-[#EDE5DC]'}`}>
-      <div className="w-9 h-9 rounded-xl bg-[#F5EFE9] flex items-center justify-center shrink-0 mt-0.5">
-        <Icon className="w-4 h-4 text-[#8B2246]" strokeWidth={1.6} />
+    <div className={`flex items-start gap-4 py-5 ${last ? '' : 'border-b border-[var(--pd)]'}`}>
+      <div className="w-9 h-9 rounded-xl bg-[var(--pc2)] flex items-center justify-center shrink-0 mt-0.5">
+        <Icon className="w-4 h-4 text-[var(--pa)]" strokeWidth={1.6} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-[14px] text-[#1A1A1A] leading-snug">{label}</p>
-        <p className="text-[11.5px] text-[#9B9490] mt-0.5 leading-relaxed">{desc}</p>
+        <p className="font-semibold text-[14px] text-[var(--pt)] leading-snug">{label}</p>
+        <p className="text-[11.5px] text-[var(--pm)] mt-0.5 leading-relaxed">{desc}</p>
       </div>
-      <span className="text-[13px] text-[#8B2246] font-semibold shrink-0 mt-1">{value}</span>
+      <span className="text-[13px] text-[var(--pa)] font-semibold shrink-0 mt-1">{value}</span>
     </div>
   )
 }
 
 export default function PreferencesPage() {
-  const [theme, setTheme] = useState('light')
+  const { theme, setTheme } = useTheme()
   const [fontSize, setFontSize] = useState('medium')
 
   return (
-    <div className="min-h-dvh bg-[#FAF8F4]">
+    <div className="min-h-dvh bg-[var(--pb)]">
       <TopNav />
 
       <div className="px-7 pb-24 max-w-sm mx-auto pt-20">
         <Link
           href="/settings"
-          className="flex items-center gap-1.5 text-[#9B9490] hover:text-[#8B2246] transition-colors mb-8 w-fit"
+          className="flex items-center gap-1.5 text-[var(--pm)] hover:text-[var(--pa)] transition-colors mb-8 w-fit"
         >
           <ChevronLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
           <span className="text-[10px] tracking-[0.18em] font-bold">SETTINGS</span>
         </Link>
 
         <div className="mb-10">
-          <h1 className="font-playfair text-[1.9rem] font-black leading-none text-[#1A1A1A] tracking-tight">
+          <h1 className="font-playfair text-[1.9rem] font-black leading-none text-[var(--pt)] tracking-tight">
             PREFERENCES
           </h1>
-          <p className="text-[0.78rem] text-[#9B9490] mt-2 tracking-wide">
+          <p className="text-[0.78rem] text-[var(--pm)] mt-2 tracking-wide">
             학습 환경을 나에게 맞게 조정하세요
           </p>
         </div>
 
         {/* APPEARANCE */}
         <SectionLabel>APPEARANCE</SectionLabel>
-        <div className="border-t border-[#EDE5DC]">
+        <div className="border-t border-[var(--pd)]">
           <div className="flex items-start gap-4 pt-5 pb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#F5EFE9] flex items-center justify-center shrink-0 mt-0.5">
+            <div className="w-9 h-9 rounded-xl bg-[var(--pc2)] flex items-center justify-center shrink-0 mt-0.5">
               {theme === 'light'
-                ? <Sun className="w-4 h-4 text-[#8B2246]" strokeWidth={1.6} />
-                : <Moon className="w-4 h-4 text-[#8B2246]" strokeWidth={1.6} />}
+                ? <Sun className="w-4 h-4 text-[var(--pa)]" strokeWidth={1.6} />
+                : <Moon className="w-4 h-4 text-[var(--pa)]" strokeWidth={1.6} />}
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-[14px] text-[#1A1A1A]">Theme</p>
-              <p className="text-[11.5px] text-[#9B9490] mt-0.5">라이트 또는 다크 모드를 선택하세요</p>
+              <p className="font-semibold text-[14px] text-[var(--pt)]">Theme</p>
+              <p className="text-[11.5px] text-[var(--pm)] mt-0.5">라이트 또는 다크 모드를 선택하세요</p>
               <ChipGroup
                 options={[{ label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }]}
                 value={theme}
-                onChange={setTheme}
+                onChange={(v) => setTheme(v as 'light' | 'dark')}
               />
             </div>
           </div>
-          <div className="h-px bg-[#EDE5DC]" />
+          <div className="h-px bg-[var(--pd)]" />
           <div className="flex items-start gap-4 pt-5 pb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#F5EFE9] flex items-center justify-center shrink-0 mt-0.5">
-              <Type className="w-4 h-4 text-[#8B2246]" strokeWidth={1.6} />
+            <div className="w-9 h-9 rounded-xl bg-[var(--pc2)] flex items-center justify-center shrink-0 mt-0.5">
+              <Type className="w-4 h-4 text-[var(--pa)]" strokeWidth={1.6} />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-[14px] text-[#1A1A1A]">Font Size</p>
-              <p className="text-[11.5px] text-[#9B9490] mt-0.5">읽기 편한 글자 크기를 설정하세요</p>
+              <p className="font-semibold text-[14px] text-[var(--pt)]">Font Size</p>
+              <p className="text-[11.5px] text-[var(--pm)] mt-0.5">읽기 편한 글자 크기를 설정하세요</p>
               <ChipGroup
                 options={[
                   { label: 'Small', value: 'small' },
@@ -137,38 +138,16 @@ export default function PreferencesPage() {
 
         {/* AUDIO */}
         <SectionLabel>AUDIO</SectionLabel>
-        <div className="border-t border-[#EDE5DC]">
-          <SettingRow
-            icon={Mic}
-            label="Speech Rate"
-            desc="오디오 재생 속도"
-            value="Normal"
-          />
-          <SettingRow
-            icon={Mic}
-            label="Voice"
-            desc="TTS 음성 언어 및 억양"
-            value="en-US"
-            last
-          />
+        <div className="border-t border-[var(--pd)]">
+          <SettingRow icon={Mic} label="Speech Rate" desc="오디오 재생 속도" value="Normal" />
+          <SettingRow icon={Mic} label="Voice" desc="TTS 음성 언어 및 억양" value="en-US" last />
         </div>
 
         {/* LANGUAGE */}
         <SectionLabel>LANGUAGE</SectionLabel>
-        <div className="border-t border-[#EDE5DC]">
-          <SettingRow
-            icon={Globe}
-            label="App Language"
-            desc="앱 인터페이스 표시 언어"
-            value="한국어"
-          />
-          <SettingRow
-            icon={BookOpen}
-            label="Translation"
-            desc="스토리 번역 대상 언어"
-            value="Korean"
-            last
-          />
+        <div className="border-t border-[var(--pd)]">
+          <SettingRow icon={Globe} label="App Language" desc="앱 인터페이스 표시 언어" value="한국어" />
+          <SettingRow icon={BookOpen} label="Translation" desc="스토리 번역 대상 언어" value="Korean" last />
         </div>
       </div>
     </div>

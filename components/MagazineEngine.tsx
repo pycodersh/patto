@@ -212,7 +212,7 @@ export function MagazineEngine({ story, allStories, initialView = 'story' }: Mag
         style={{ background: 'none', border: 'none' }}
         type="button"
       >
-        <span className="text-[#1A1A1A] text-[1.4rem] opacity-10 group-hover:opacity-35 transition-opacity select-none">‹</span>
+        <span className="text-[var(--pt)] text-[1.4rem] opacity-10 group-hover:opacity-35 transition-opacity select-none">‹</span>
       </button>
       <button
         aria-label="다음 페이지"
@@ -221,25 +221,26 @@ export function MagazineEngine({ story, allStories, initialView = 'story' }: Mag
         style={{ background: 'none', border: 'none' }}
         type="button"
       >
-        <span className="text-[#1A1A1A] text-[1.4rem] opacity-10 group-hover:opacity-35 transition-opacity select-none">›</span>
+        <span className="text-[var(--pt)] text-[1.4rem] opacity-10 group-hover:opacity-35 transition-opacity select-none">›</span>
       </button>
 
       {/* Translation popup — outside rail */}
       {popup && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-6"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6"
           onClick={() => { setPopup(null); stop() }}
         >
           <div
-            className="bg-white rounded-2xl p-5 w-full max-w-[320px] shadow-2xl"
+            className="rounded-2xl p-5 w-full max-w-[320px] shadow-2xl"
+            style={{ background: 'var(--pb)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-3">
-              <span className="text-[9px] tracking-[0.25em] text-[#8B2246] font-semibold">TRANSLATION</span>
+              <span className="text-[9px] tracking-[0.25em] text-[var(--pa)] font-semibold">TRANSLATION</span>
               <div className="flex items-center gap-2">
                 <button
                   aria-label={isSpeaking ? '정지' : '읽기'}
-                  className={`p-1.5 rounded-full transition-colors cursor-pointer ${isSpeaking ? 'bg-[#FDF0F4] text-[#8B2246]' : 'text-[#C8BFB5] hover:bg-[#FDF0F4] hover:text-[#8B2246]'}`}
+                  className={`p-1.5 rounded-full transition-colors cursor-pointer ${isSpeaking ? 'bg-[var(--pd)] text-[var(--pa)]' : 'text-[var(--pm2)] hover:bg-[var(--pd)] hover:text-[var(--pa)]'}`}
                   onClick={() => (isSpeaking ? stop() : speak(popup.english))}
                   type="button"
                 >
@@ -247,7 +248,7 @@ export function MagazineEngine({ story, allStories, initialView = 'story' }: Mag
                 </button>
                 <button
                   aria-label="닫기"
-                  className="text-[#C8BFB5] hover:text-[#1A1A1A] transition-colors cursor-pointer"
+                  className="text-[var(--pm2)] hover:text-[var(--pt)] transition-colors cursor-pointer"
                   onClick={() => { setPopup(null); stop() }}
                   type="button"
                 >
@@ -255,18 +256,18 @@ export function MagazineEngine({ story, allStories, initialView = 'story' }: Mag
                 </button>
               </div>
             </div>
-            <p className="font-playfair text-[0.78rem] text-[#9B9490] leading-relaxed mb-2">
+            <p className="font-playfair text-[0.78rem] text-[var(--pm)] leading-relaxed mb-2">
               {popup.english}
             </p>
-            <p className="text-[0.9rem] text-[#1A1A1A] leading-relaxed mb-4">
+            <p className="text-[0.9rem] text-[var(--pt)] leading-relaxed mb-4">
               {popup.koreanTranslation}
             </p>
             {popup.keyExpressions.length > 0 && (
               <>
-                <div className="h-px bg-[#F0E8E0] mb-3" />
+                <div className="h-px bg-[var(--pd)] mb-3" />
                 <div className="flex flex-wrap gap-2">
                   {popup.keyExpressions.map((expr, i) => (
-                    <span key={i} className="text-[11px] bg-[#FDF0F4] text-[#8B2246] px-3 py-1 rounded-full">
+                    <span key={i} className="text-[11px] bg-[var(--pal)] text-[var(--pa)] px-3 py-1 rounded-full">
                       {expr}
                     </span>
                   ))}
