@@ -18,32 +18,30 @@ export function PatternsPage({ story, onPrev, onNext, hasNext, onOpenPicker }: P
       <div className="flex-1 overflow-y-auto">
         <div className="pl-7 pr-6 pt-5 pb-10">
 
-          {/* Header row */}
-          <div className="flex items-start justify-between gap-3 mt-2 mb-1">
-            <div>
-              <h1 className="font-playfair text-[2.8rem] font-black leading-none text-[#8B2246] tracking-tight">
-                PATTERNS
-              </h1>
-              <p className="text-[9px] tracking-[0.3em] text-[#8B2246] font-semibold mt-1">
-                FROM THIS STORY
-              </p>
-            </div>
+          {/* Header */}
+          <div className="mt-2 mb-1">
+            <h1 className="font-playfair text-[2.8rem] font-black leading-none text-[#8B2246] tracking-tight">
+              PATTERNS
+            </h1>
+            <p className="text-[9px] tracking-[0.3em] text-[#8B2246] font-semibold mt-1">
+              FROM THIS STORY
+            </p>
+          </div>
+
+          {/* Subtitle + Story picker on same line */}
+          <div className="flex items-center justify-between mt-2 mb-6">
+            <p className="text-sm text-[#9B9490]">
+              스토리 속에서 만난 {story.patterns.length}가지 패턴
+            </p>
             <button
               aria-label="스토리 선택"
-              className="text-[9px] tracking-[0.2em] font-semibold text-[#8B2246] flex items-center gap-1 mt-2.5 shrink-0 group cursor-pointer hover:opacity-70 transition-opacity"
+              className="text-[9px] tracking-[0.2em] font-semibold text-[#8B2246] shrink-0 ml-3 cursor-pointer hover:opacity-70 transition-opacity"
               onClick={onOpenPicker}
               type="button"
             >
               Story {String(story.id).padStart(2, '0')}
-              <svg width="7" height="5" viewBox="0 0 7 5" fill="none" className="opacity-70">
-                <path d="M1 1L3.5 3.5L6 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
             </button>
           </div>
-
-          <p className="text-sm text-[#9B9490] mt-2 mb-6">
-            스토리 속에서 만난 {story.patterns.length}가지 패턴
-          </p>
 
           <div className="h-px bg-[#E8E0D8] mb-1" />
 
