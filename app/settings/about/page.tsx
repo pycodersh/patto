@@ -1,39 +1,32 @@
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, ScrollText, Shield, Mail, Code2, Info } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ScrollText, Shield, Mail, Info } from 'lucide-react'
 import { TopNav, NAV_HEIGHT } from '@/components/TopNav'
 
 const ITEMS = [
   {
     icon: ScrollText,
-    label: 'Terms of Service',
+    label: '이용약관',
     desc: 'PATTO 이용 규칙 및 약관',
     href: '/settings/about/terms',
     value: null,
   },
   {
     icon: Shield,
-    label: 'Privacy Policy',
+    label: '개인정보처리방침',
     desc: '개인정보 수집·이용·보호 방침',
     href: '/settings/about/privacy',
     value: null,
   },
   {
     icon: Mail,
-    label: 'Contact Us',
+    label: '문의하기',
     desc: 'support@patto.app',
     href: null,
     value: null,
   },
   {
-    icon: Code2,
-    label: 'Open Source Licenses',
-    desc: 'PATTO에 사용된 오픈소스 소프트웨어',
-    href: null,
-    value: null,
-  },
-  {
     icon: Info,
-    label: 'Version',
+    label: '버전',
     desc: '현재 앱 버전',
     href: null,
     value: '1.0.0',

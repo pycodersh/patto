@@ -1,14 +1,8 @@
 import Link from 'next/link'
-import { ChevronRight, UserCircle, SlidersHorizontal, Sparkles, Info } from 'lucide-react'
+import { ChevronRight, SlidersHorizontal, Sparkles, Info, UserCircle } from 'lucide-react'
 import { TopNav } from '@/components/TopNav'
 
 const hubs = [
-  {
-    icon: UserCircle,
-    label: 'ACCOUNT',
-    desc: '프로필 및 계정 관리',
-    href: '/settings/account',
-  },
   {
     icon: SlidersHorizontal,
     label: 'PREFERENCES',
@@ -36,13 +30,34 @@ export default function SettingsPage() {
 
       <div className="px-7 pb-20 max-w-sm mx-auto pt-20">
         {/* Page title */}
-        <div className="mb-10">
+        <div className="mb-8">
           <h1 className="font-playfair text-[1.9rem] font-black leading-none text-[#1A1A1A] tracking-tight">
             SETTINGS
           </h1>
           <p className="text-[0.78rem] text-[#9B9490] mt-2 tracking-wide">
             앱을 나에게 맞게 조정하세요.
           </p>
+        </div>
+
+        {/* Guest Card */}
+        <div className="rounded-2xl bg-[#F0EAE2] px-5 py-5 mb-8">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-full bg-[#8B2246]/12 flex items-center justify-center shrink-0">
+              <UserCircle className="w-5 h-5 text-[#8B2246]" strokeWidth={1.5} />
+            </div>
+            <div>
+              <p className="text-[13px] font-bold text-[#1A1A1A]">Guest</p>
+              <p className="text-[11px] text-[#9B9490] mt-0.5 leading-snug">
+                로그인하면 학습 기록과 저장한 패턴을<br />안전하게 보관할 수 있어요.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/settings/auth"
+            className="block w-full text-center py-2.5 rounded-xl bg-[#8B2246] text-white text-[12px] font-bold tracking-[0.08em] hover:bg-[#7A1D3F] transition-colors"
+          >
+            로그인 / 회원가입
+          </Link>
         </div>
 
         {/* Hub list */}
@@ -57,7 +72,7 @@ export default function SettingsPage() {
                   className="flex items-center gap-4 py-5 group"
                 >
                   <div className="w-10 h-10 rounded-xl bg-[#F0EAE2] flex items-center justify-center shrink-0 group-hover:bg-[#EDE5DC] transition-colors">
-                    <Icon className="w-4.5 h-4.5 text-[#8B2246]" strokeWidth={1.6} style={{ width: 18, height: 18 }} />
+                    <Icon className="text-[#8B2246]" strokeWidth={1.6} style={{ width: 18, height: 18 }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p
