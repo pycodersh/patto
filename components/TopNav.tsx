@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const TABS = [
-  { label: 'STUDY', href: '/stories/1' },
+  { label: 'STORY',    href: '/stories/1' },
   { label: 'PROGRESS', href: '/records' },
   { label: 'SETTINGS', href: '/settings' },
 ] as const
@@ -13,7 +13,7 @@ function getActive(pathname: string) {
   if (pathname === '/home' || pathname === '/') return 'HOME'
   if (pathname.startsWith('/records')) return 'PROGRESS'
   if (pathname.startsWith('/settings')) return 'SETTINGS'
-  return 'STUDY'
+  return 'STORY'
 }
 
 export const NAV_HEIGHT = 52

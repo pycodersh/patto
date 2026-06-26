@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { MagazinePattern, MagazineStory } from '@/types/magazine'
+import { usePreferences } from '@/contexts/PreferencesContext'
 
 type PatternsPageProps = {
   story: MagazineStory
@@ -14,6 +15,9 @@ type PatternsPageProps = {
 }
 
 export function PatternsPage({ story, onPrev, onNext, hasNext, onOpenPicker, onOpenPattern }: PatternsPageProps) {
+  const { prefs } = usePreferences()
+  const showTranslation = prefs.translationLang !== 'none'
+
   return (
     <div className="h-full flex flex-col bg-[var(--pb)]">
       <div className="flex-1 overflow-y-auto">
@@ -61,19 +65,23 @@ export function PatternsPage({ story, onPrev, onNext, hasNext, onOpenPicker, onO
                     <p className="font-playfair text-[1.05rem] font-bold text-[var(--pt)] leading-snug group-hover:text-[var(--pa)] transition-colors">
                       {pattern.pattern}
                     </p>
-                    <p className="text-[0.72rem] text-[var(--pa)]/70 mt-0.5 mb-3">{pattern.meaningKo}</p>
+                    {showTranslation && <p className="text-[0.72rem] text-[var(--pa)]/70 mt-0.5 mb-3">{pattern.meaningKo}</p>}
                     <p className="text-[0.8rem] text-[var(--pt)] leading-relaxed font-medium">
                       {pattern.storySentence}
                     </p>
-                    <p className="text-[0.72rem] text-[var(--pm)] mt-0.5 leading-relaxed">
-                      {pattern.storySentenceKo}
-                    </p>
+                    {showTranslation && (
+                      <p className="text-[0.72rem] text-[var(--pm)] mt-0.5 leading-relaxed">
+                        {pattern.storySentenceKo}
+                      </p>
+                    )}
                     <p className="text-[0.8rem] text-[var(--pt)] leading-relaxed font-medium mt-2">
                       {pattern.variationSentence}
                     </p>
-                    <p className="text-[0.72rem] text-[var(--pm)] mt-0.5 leading-relaxed">
-                      {pattern.variationSentenceKo}
-                    </p>
+                    {showTranslation && (
+                      <p className="text-[0.72rem] text-[var(--pm)] mt-0.5 leading-relaxed">
+                        {pattern.variationSentenceKo}
+                      </p>
+                    )}
                   </div>
                   <div className="shrink-0 pt-1.5">
                     <ChevronRight className="w-3.5 h-3.5 text-[var(--pm2)] group-hover:text-[var(--pa)] transition-colors" strokeWidth={1.5} />

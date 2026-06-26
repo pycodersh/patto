@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Sun, Moon, Mic, Globe, BookOpen, Check } fro
 import { TopNav } from '@/components/TopNav'
 import { useTheme } from '@/components/ThemeProvider'
 import { usePreferences } from '@/contexts/PreferencesContext'
+import { useT } from '@/hooks/useT'
 import {
   type SpeechRate, type VoiceKey, type AppLang, type TranslationLang,
   SPEECH_RATE_LABELS, VOICE_LABELS, APP_LANG_LABELS, TRANSLATION_LANG_LABELS,
@@ -163,6 +164,7 @@ export default function PreferencesPage() {
   const { theme, setTheme } = useTheme()
   const { prefs, update }   = usePreferences()
   const [sheet, setSheet]   = useState<Sheet>(null)
+  const t = useT()
 
   const speechRateOptions = (
     ['slow', 'normal', 'fast'] as SpeechRate[]
@@ -195,15 +197,15 @@ export default function PreferencesPage() {
 
         <div className="mb-10">
           <h1 className="font-playfair text-[1.9rem] font-black leading-none text-[var(--pt)] tracking-tight">
-            PREFERENCES
+            {t('pref_title')}
           </h1>
           <p className="text-[0.78rem] text-[var(--pm)] mt-2 tracking-wide">
-            학습 환경을 나에게 맞게 조정하세요
+            {t('pref_desc')}
           </p>
         </div>
 
         {/* ── DISPLAY ──────────────────────────────────────────────────── */}
-        <SectionLabel>DISPLAY</SectionLabel>
+        <SectionLabel>{t('display')}</SectionLabel>
         <div className="border-t border-[var(--pd)]">
           <div className="flex items-start gap-4 py-5">
             <div className="w-9 h-9 rounded-xl bg-[var(--pc2)] flex items-center justify-center shrink-0 mt-0.5">
@@ -212,8 +214,8 @@ export default function PreferencesPage() {
                 : <Moon className="w-4 h-4 text-[var(--pa)]" strokeWidth={1.6} />}
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-[14px] text-[var(--pt)]">Theme</p>
-              <p className="text-[11.5px] text-[var(--pm)] mt-0.5">라이트 또는 다크 모드를 선택하세요</p>
+              <p className="font-semibold text-[14px] text-[var(--pt)]">{t('theme')}</p>
+              <p className="text-[11.5px] text-[var(--pm)] mt-0.5">{t('theme_desc')}</p>
               <ChipGroup
                 options={[{ label: 'Light', value: 'light' }, { label: 'Dark', value: 'dark' }]}
                 value={theme}
@@ -224,20 +226,20 @@ export default function PreferencesPage() {
         </div>
 
         {/* ── AUDIO ────────────────────────────────────────────────────── */}
-        <SectionLabel>AUDIO</SectionLabel>
+        <SectionLabel>{t('audio')}</SectionLabel>
         <div className="border-t border-[var(--pd)]">
           <ChipRow
             icon={Mic}
-            label="Speech Rate"
-            desc="TTS 재생 속도를 선택하세요 — 변경 즉시 모든 오디오에 적용됩니다"
+            label={t('speech_rate')}
+            desc={t('speech_rate_desc')}
             options={speechRateOptions}
             value={prefs.speechRate}
             onChange={v => update({ speechRate: v })}
           />
           <ChipRow
             icon={Mic}
-            label="Voice"
-            desc="TTS 음성 언어 및 억양을 선택하세요"
+            label={t('voice')}
+            desc={t('voice_desc')}
             options={voiceOptions}
             value={prefs.voice}
             onChange={v => update({ voice: v })}
@@ -246,19 +248,19 @@ export default function PreferencesPage() {
         </div>
 
         {/* ── LANGUAGE ─────────────────────────────────────────────────── */}
-        <SectionLabel>LANGUAGE</SectionLabel>
+        <SectionLabel>{t('language')}</SectionLabel>
         <div className="border-t border-[var(--pd)]">
           <SelectRow
             icon={Globe}
-            label="App Language"
-            desc="앱 인터페이스 표시 언어"
+            label={t('app_language')}
+            desc={t('app_language_desc')}
             displayValue={APP_LANG_LABELS[prefs.appLang]}
             onClick={() => setSheet('appLang')}
           />
           <SelectRow
             icon={BookOpen}
-            label="Translation"
-            desc="스토리 번역 표시 언어 — None 선택 시 번역 숨김"
+            label={t('translation')}
+            desc={t('translation_desc')}
             displayValue={TRANSLATION_LANG_LABELS[prefs.translationLang]}
             onClick={() => setSheet('translation')}
             last

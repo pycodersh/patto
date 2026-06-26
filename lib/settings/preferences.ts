@@ -67,10 +67,10 @@ export const SPEECH_RATE_LABELS: Record<SpeechRate, string> = {
 }
 
 export const VOICE_LABELS: Record<VoiceKey, string> = {
-  'us-male':   '🇺🇸 US Male',
-  'us-female': '🇺🇸 US Female',
-  'uk-male':   '🇬🇧 UK Male',
-  'uk-female': '🇬🇧 UK Female',
+  'us-male':   '🇺🇸 Male',
+  'us-female': '🇺🇸 Female',
+  'uk-male':   '🇬🇧 Male',
+  'uk-female': '🇬🇧 Female',
 }
 
 export const APP_LANG_LABELS: Record<AppLang, string> = {

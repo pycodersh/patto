@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { X, Volume2, BookmarkPlus, BookmarkCheck } from 'lucide-react'
 import type { MagazinePattern } from '@/types/magazine'
+import { usePreferences } from '@/contexts/PreferencesContext'
 
 type PatternPopupProps = {
   pattern: MagazinePattern
@@ -13,6 +14,8 @@ type PatternPopupProps = {
 }
 
 export function PatternPopup({ pattern, onClose, speak, stop, isSpeaking }: PatternPopupProps) {
+  const { prefs } = usePreferences()
+  const showTranslation = prefs.translationLang !== 'none'
   const [saved, setSaved] = useState(false)
   const [speakingId, setSpeakingId] = useState<string | null>(null)
 
@@ -54,7 +57,7 @@ export function PatternPopup({ pattern, onClose, speak, stop, isSpeaking }: Patt
         <p className="font-playfair text-[1.15rem] font-bold text-[var(--pt)] leading-snug">
           {pattern.pattern}
         </p>
-        <p className="text-[0.78rem] text-[var(--pa)] mt-0.5 mb-4">{pattern.meaningKo}</p>
+        {showTranslation && <p className="text-[0.78rem] text-[var(--pa)] mt-0.5 mb-4">{pattern.meaningKo}</p>}
 
         {/* Explanation */}
         {pattern.explanation && (
@@ -75,9 +78,11 @@ export function PatternPopup({ pattern, onClose, speak, stop, isSpeaking }: Patt
             <p className="font-playfair text-[0.82rem] font-bold text-[var(--pt)] leading-relaxed">
               {pattern.storySentence}
             </p>
-            <p className="text-[0.73rem] text-[var(--pm)] mt-0.5 leading-relaxed">
-              {pattern.storySentenceKo}
-            </p>
+            {showTranslation && (
+              <p className="text-[0.73rem] text-[var(--pm)] mt-0.5 leading-relaxed">
+                {pattern.storySentenceKo}
+              </p>
+            )}
           </div>
           <button
             type="button"
