@@ -7,135 +7,138 @@ import { TopNav, NAV_HEIGHT } from '@/components/TopNav'
 import { getFirstIncompleteItem } from '@/lib/review/home'
 import { getTodayReviewItems } from '@/lib/review/storage'
 
-// ── Cover image seeds (50장 순환) ─────────────────────────────────────────
-const COVER_SEEDS = [
-  'coffee', 'steam', 'candle', 'journal', 'desk',
-  'forest', 'sunlight', 'mist', 'bloom', 'dawn',
-  'rain', 'snow', 'autumn', 'winter', 'fog',
-  'ocean', 'lake', 'shore', 'beach', 'harbor',
-  'alley', 'bridge', 'street', 'cobblestone', 'train',
-  'mountain', 'alps', 'meadow', 'pine', 'path',
-  'sunset', 'dusk', 'twilight', 'stars', 'galaxy',
-  'library', 'cafe', 'bookshelf', 'window', 'reading',
-  'village', 'cottage', 'garden', 'farmhouse', 'lighthouse',
-  'maple', 'cherry', 'evening', 'sunrise', 'noon',
-]
-const COVER_IMAGES = COVER_SEEDS.map(s => `https://picsum.photos/seed/${s}/900/600`)
-
-// ── Editorial quotes (100개) ─────────────────────────────────────────────
-const DAILY_QUOTES = [
-  'Small progress every day.',
-  'Read. Repeat. Remember.',
-  'Every review matters.',
-  'Patterns become habits.',
-  'One story at a time.',
-  'Stories make language memorable.',
-  'Fluency comes from repetition.',
-  'Trust your voice.',
-  'Speak naturally.',
-  'Keep moving forward.',
-  'Every word, a small victory.',
-  'Language lives in stories.',
-  'Make it a habit.',
-  'One pattern at a time.',
-  'Stories connect us.',
-  'Words are bridges.',
-  'Begin again, every day.',
-  'A little, every day.',
-  'The story continues.',
-  'Speak with confidence.',
-  'Read it. Feel it. Say it.',
-  'Slow is smooth. Smooth is fluent.',
-  'Every page is a step forward.',
-  'Language is alive — keep it moving.',
-  'Repetition is the mother of fluency.',
-  'One sentence changes everything.',
-  'Keep showing up.',
-  'Every session leaves a mark.',
-  'Stories stay with you.',
-  'Read deeply. Speak freely.',
-  'The quiet habit builds the loudest skill.',
-  'One review at a time.',
-  'Speak first. Refine later.',
-  'Every morning is a new page.',
-  'Curiosity builds fluency.',
-  'Words have power. Use them.',
-  "Today's effort is tomorrow's ease.",
-  'Immerse yourself.',
-  'Language grows with practice.',
-  'Find the story. Learn the language.',
-  "Progress is invisible until it isn't.",
-  'Patience builds fluency.',
-  'Every pattern is a stepping stone.',
-  'Read. Listen. Speak. Repeat.',
-  'The habit is the teacher.',
-  'Small steps. Big changes.',
-  'Stories are how we remember.',
-  'Your voice is already there. Practice finds it.',
-  'One more story.',
-  'Not perfect. Just consistent.',
-  'Language is a door. Reading is the key.',
-  'The best time to practice is now.',
-  'Every story leaves something behind.',
-  'Fluency is built one day at a time.',
-  'Speak the language. Live the story.',
-  'Review today. Remember tomorrow.',
-  'Sentences become instinct.',
-  'Effort compounds quietly.',
-  'Stay curious. Stay fluent.',
-  'You understand more than you think.',
-  'Every listen counts.',
-  'The page is always open.',
-  'Words become yours with time.',
-  'Show up. The rest follows.',
-  'One pattern. Infinite sentences.',
-  'Less hesitation. More speaking.',
-  'Consistency is the only shortcut.',
-  'Return to the story. Find something new.',
-  'The habit of reading builds the habit of speaking.',
-  'Language is patience rewarded.',
-  "Today's review is tomorrow's reflex.",
-  'Every sentence you read stays with you.',
-  'Depth before breadth.',
-  'Understand it. Then own it.',
-  'Keep the rhythm going.',
-  'Natural speech starts with natural reading.',
-  'A good sentence is worth rereading.',
-  'The story is the lesson.',
-  'Practice in quiet. Speak with ease.',
-  'Build the habit. The skill will follow.',
-  'Every day, a new sentence remembered.',
-  'Learn the language. Tell your story.',
-  'Reading is the root of speaking.',
-  'The smallest habit changes everything.',
-  'Progress sounds like silence at first.',
-  'Speak a little more today than yesterday.',
-  'Language is a craft. Polish it daily.',
-  'One good review is worth ten new words.',
-  'Keep going. Even on quiet days.',
-  "Stories teach what textbooks can't.",
-  'Your accent is part of your voice.',
-  'A sentence a day moves mountains.',
-  'Language rewards the patient.',
-  'The habit protects the skill.',
-  'Every story read is a conversation prepared.',
-  "Fluency is not a destination. It's a direction.",
-  "Make today's session count.",
-  'One page. One pattern. One step.',
-  'The cover changes. The practice continues.',
-]
-
-// ── Helpers ──────────────────────────────────────────────────────────────
-function dayOfYear(): number {
-  const start = new Date(new Date().getFullYear(), 0, 0)
-  return Math.floor((Date.now() - start.getTime()) / 86_400_000)
+// ── Themed cover pairs (이미지 + 쿼트 느낌 매칭) ─────────────────────────────
+type CoverTheme = {
+  seeds:  string[]   // picsum.photos seed words
+  quotes: string[]
 }
 
-function byDay<T>(arr: T[]): T {
-  return arr[dayOfYear() % arr.length]
+const COVER_THEMES: CoverTheme[] = [
+  // ① Rainy / Quiet — 비, 창가, 사색
+  {
+    seeds: ['rain', 'mist', 'fog', 'overcast', 'drizzle', 'window'],
+    quotes: [
+      'Read. Repeat. Remember.',
+      'The quiet habit builds the loudest skill.',
+      'Slow is smooth. Smooth is fluent.',
+      'Every story leaves something behind.',
+      'Language lives in stories.',
+      'Practice in quiet. Speak with ease.',
+      'A good sentence is worth rereading.',
+      'The page is always open.',
+    ],
+  },
+  // ② Coffee / Morning focus — 커피, 아침, 집중
+  {
+    seeds: ['coffee', 'espresso', 'latte', 'breakfast', 'journal', 'desk'],
+    quotes: [
+      'Every morning is a new page.',
+      'Begin again, every day.',
+      "Today's effort is tomorrow's ease.",
+      'Make it a habit.',
+      'A little, every day.',
+      "Make today's session count.",
+      'Show up. The rest follows.',
+      'Keep the rhythm going.',
+    ],
+  },
+  // ③ Forest / Nature — 숲, 자연, 고요
+  {
+    seeds: ['forest', 'pine', 'meadow', 'fern', 'woodland', 'bloom'],
+    quotes: [
+      'Patience builds fluency.',
+      'Language rewards the patient.',
+      'Small steps. Big changes.',
+      'The habit is the teacher.',
+      'One pattern at a time.',
+      'Depth before breadth.',
+      'Reading is the root of speaking.',
+      'The smallest habit changes everything.',
+    ],
+  },
+  // ④ Evening / Cozy — 저녁, 램프, 따뜻함
+  {
+    seeds: ['candle', 'lamp', 'evening', 'warmglow', 'dusk', 'fireplace'],
+    quotes: [
+      'Stories stay with you.',
+      'Stories connect us.',
+      'Find the story. Learn the language.',
+      'Every story read is a conversation prepared.',
+      "Stories teach what textbooks can't.",
+      'Language is a door. Reading is the key.',
+      'Return to the story. Find something new.',
+      'Read deeply. Speak freely.',
+    ],
+  },
+  // ⑤ City / Travel — 도시, 거리, 여행
+  {
+    seeds: ['street', 'cobblestone', 'alley', 'city', 'bridge', 'urban'],
+    quotes: [
+      'Keep moving forward.',
+      'One sentence changes everything.',
+      'Words are bridges.',
+      'Speak first. Refine later.',
+      'Less hesitation. More speaking.',
+      'Your voice is already there. Practice finds it.',
+      'Speak a little more today than yesterday.',
+      'The story continues.',
+    ],
+  },
+  // ⑥ Ocean / Peace — 바다, 해변, 평온
+  {
+    seeds: ['ocean', 'shore', 'horizon', 'harbor', 'beach', 'waves'],
+    quotes: [
+      "Fluency is not a destination. It's a direction.",
+      'Stay curious. Stay fluent.',
+      'Every listen counts.',
+      'Words become yours with time.',
+      'You understand more than you think.',
+      'Language is alive — keep it moving.',
+      'Effort compounds quietly.',
+      'Progress sounds like silence at first.',
+    ],
+  },
+  // ⑦ Morning Light — 일출, 여명, 상쾌함
+  {
+    seeds: ['sunrise', 'dawn', 'morning', 'sunlight', 'daybreak', 'fresh'],
+    quotes: [
+      'Small progress every day.',
+      'Every review matters.',
+      'One more story.',
+      'Not perfect. Just consistent.',
+      'Consistency is the only shortcut.',
+      'Keep going. Even on quiet days.',
+      'Every word, a small victory.',
+      'Build the habit. The skill will follow.',
+    ],
+  },
+  // ⑧ Library / Reading — 책, 도서관, 독서
+  {
+    seeds: ['library', 'bookshelf', 'reading', 'book', 'pages', 'study'],
+    quotes: [
+      'Patterns become habits.',
+      'One story at a time.',
+      'Every session leaves a mark.',
+      'Sentences become instinct.',
+      'Read it. Feel it. Say it.',
+      'Natural speech starts with natural reading.',
+      'Fluency comes from repetition.',
+      'Language is a craft. Polish it daily.',
+    ],
+  },
+]
+
+function pickCover(): { imageUrl: string; quote: string } {
+  const theme  = COVER_THEMES[Math.floor(Math.random() * COVER_THEMES.length)]
+  const seed   = theme.seeds[Math.floor(Math.random() * theme.seeds.length)]
+  const quote  = theme.quotes[Math.floor(Math.random() * theme.quotes.length)]
+  return {
+    imageUrl: `https://picsum.photos/seed/${seed}/900/600`,
+    quote,
+  }
 }
 
-// "JUNE 26, 2026" — 매거진 발행일 형식
+// 매거진 발행일 형식: "JUNE 26, 2026"
 function getIssueDateLabel(): string {
   return new Date()
     .toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -153,24 +156,24 @@ function fade(show: boolean): React.CSSProperties {
   return { opacity: show ? 1 : 0, transition: 'opacity 0.75s ease-out' }
 }
 
-// 탭의 좌측 가장자리(px-3 = 12px)와 맞추기 위한 콘텐츠 좌측 패딩
-const LEFT_GUTTER  = 14   // nav PATTO tab paddingLeft 기준
+const LEFT_GUTTER  = 14
 const RIGHT_GUTTER = 20
 
-// ── Page ─────────────────────────────────────────────────────────────────
+// ── Page ─────────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const router = useRouter()
-  const [notice,       setNotice]       = useState('')
-  const [firstHref,    setFirstHref]    = useState('/stories/1')
-  const [showImg,      setShowImg]      = useState(false)
-  const [showQuote,    setShowQuote]    = useState(false)
-  const [showLine,     setShowLine]     = useState(false)
-  const [showNote,     setShowNote]     = useState(false)
-  const [showBtn,      setShowBtn]      = useState(false)
 
-  const coverUrl       = byDay(COVER_IMAGES)
-  const quote          = byDay(DAILY_QUOTES)
+  // 세션마다 1회 랜덤 선택 (마운트 시 결정, 새로고침 시 재선택)
+  const [{ imageUrl, quote }] = useState(() => pickCover())
   const issueDateLabel = getIssueDateLabel()
+
+  const [notice,    setNotice]    = useState('')
+  const [firstHref, setFirstHref] = useState('/stories/1')
+  const [showImg,   setShowImg]   = useState(false)
+  const [showQuote, setShowQuote] = useState(false)
+  const [showLine,  setShowLine]  = useState(false)
+  const [showNote,  setShowNote]  = useState(false)
+  const [showBtn,   setShowBtn]   = useState(false)
 
   useEffect(() => {
     const reviews = getTodayReviewItems()
@@ -192,7 +195,7 @@ export default function HomePage() {
     <div style={{ minHeight: '100dvh', background: 'var(--pb)' }}>
       <TopNav />
 
-      {/* ── Cover Image — full-bleed ────────────────────────────────── */}
+      {/* ── Cover Image — full-bleed ──────────────────────────────────── */}
       <div
         style={{
           position: 'relative',
@@ -205,7 +208,7 @@ export default function HomePage() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={coverUrl}
+          src={imageUrl}
           alt="Daily cover"
           style={{
             width: '100%',
@@ -214,9 +217,16 @@ export default function HomePage() {
             objectPosition: 'center',
             display: 'block',
           }}
+          onError={(e) => {
+            // fallback: coffee seed as safe default
+            const img = e.currentTarget
+            if (!img.src.includes('coffee')) {
+              img.src = 'https://picsum.photos/seed/coffee/900/600'
+            }
+          }}
         />
 
-        {/* 하단 그라디언트 — 콘텐츠 영역으로 자연스럽게 이어짐 */}
+        {/* 하단 그라디언트 */}
         <div
           style={{
             position: 'absolute',
@@ -227,7 +237,7 @@ export default function HomePage() {
           }}
         />
 
-        {/* 우측 미세 어둠 — 로고 가독성 보조 */}
+        {/* 우측 미세 어둠 — 로고 가독성 */}
         <div
           style={{
             position: 'absolute',
@@ -237,7 +247,7 @@ export default function HomePage() {
           }}
         />
 
-        {/* ── Magazine Logo — 이미지 우측 중앙 ── */}
+        {/* Magazine Logo — 우측 중앙 */}
         <div
           style={{
             position: 'absolute',
@@ -248,7 +258,6 @@ export default function HomePage() {
             pointerEvents: 'none',
           }}
         >
-          {/* PATTO 타이틀 — Playfair, 대형, 매거진 로고 */}
           <p
             className="font-playfair"
             style={{
@@ -266,8 +275,6 @@ export default function HomePage() {
           >
             PATTO
           </p>
-
-          {/* 발행일 — PATTO 바로 아래 */}
           <p
             style={{
               margin: '8px 0 0',
@@ -283,16 +290,15 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── Content — PATTO 탭 좌측 기준선(14px)으로 정렬 ──────────── */}
+      {/* ── Content — 탭 좌측 기준선(14px) 정렬 ─────────────────────── */}
       <div
         style={{
-          paddingLeft:  LEFT_GUTTER,
-          paddingRight: RIGHT_GUTTER,
+          paddingLeft:   LEFT_GUTTER,
+          paddingRight:  RIGHT_GUTTER,
           paddingBottom: 96,
           maxWidth: 440,
         }}
       >
-
         {/* Quote */}
         <div style={{ paddingTop: 18, marginBottom: 28, ...fade(showQuote) }}>
           <p
@@ -381,7 +387,6 @@ export default function HomePage() {
             />
           </button>
         </div>
-
       </div>
     </div>
   )

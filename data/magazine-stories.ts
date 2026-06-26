@@ -8,6 +8,11 @@ export const magazineStories: MagazineStory[] = [
     ambienceId: 'cafe',
     imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80',
     imageAlt: 'Friends celebrating at a warm evening party',
+    imagePool: [
+      { url: 'https://picsum.photos/seed/warmlight/900/600',  alt: 'Warm indoor gathering in the evening' },
+      { url: 'https://picsum.photos/seed/venue/900/600',      alt: 'Social gathering at a cozy venue' },
+      { url: 'https://picsum.photos/seed/lounge/900/600',     alt: 'Friends enjoying a relaxed evening' },
+    ],
     storyNote: '가끔 계획에 없던 순간이 가장 좋은 추억이 되기도 해요.',
     highlightPhrases: [
       'I just wanted to relax at home',
@@ -144,6 +149,11 @@ export const magazineStories: MagazineStory[] = [
     ambienceId: 'rain',
     imageUrl: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=800&q=80',
     imageAlt: 'Rain drops on a window on a quiet morning',
+    imagePool: [
+      { url: 'https://picsum.photos/seed/rain/900/600',       alt: 'Raindrops on a quiet morning window' },
+      { url: 'https://picsum.photos/seed/mist/900/600',       alt: 'Misty morning light through a window' },
+      { url: 'https://picsum.photos/seed/overcast/900/600',   alt: 'A grey, soft rainy morning' },
+    ],
     storyNote: '서두르지 않아도 괜찮은 날이 있어요. 오늘이 바로 그런 날이에요.',
     highlightPhrases: [
       'I was about to make coffee',
@@ -236,6 +246,11 @@ export const magazineStories: MagazineStory[] = [
     id: 3,
     title: 'Coffee Before Work',
     ambienceId: 'cafe',
+    imagePool: [
+      { url: 'https://picsum.photos/seed/coffee/900/600',     alt: 'A warm cup of coffee in the morning light' },
+      { url: 'https://picsum.photos/seed/espresso/900/600',   alt: 'Espresso on a café table before work' },
+      { url: 'https://picsum.photos/seed/latte/900/600',      alt: 'Latte art on a peaceful morning' },
+    ],
     subtitleKo: '출근 전 커피 한 잔',
     imageUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80',
     imageAlt: 'A warm cup of coffee on a café table in the morning',
@@ -332,6 +347,11 @@ export const magazineStories: MagazineStory[] = [
     title: 'At the Airport',
     subtitleKo: '공항에서',
     ambienceId: 'city',
+    imagePool: [
+      { url: 'https://picsum.photos/seed/airport/900/600',    alt: 'The quiet anticipation of an airport departure' },
+      { url: 'https://picsum.photos/seed/departure/900/600',  alt: 'Departure gate in the early morning' },
+      { url: 'https://picsum.photos/seed/runway/900/600',     alt: 'Looking out the airplane window at the runway' },
+    ],
     imageUrl: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80',
     imageAlt: 'View from an airplane window before takeoff',
     storyNote: '여행은 목적지보다 출발하는 순간이 더 설레는 것 같아요.',
@@ -427,6 +447,11 @@ export const magazineStories: MagazineStory[] = [
     title: 'A Walk with Max',
     subtitleKo: '맥스와 산책',
     ambienceId: 'forest',
+    imagePool: [
+      { url: 'https://picsum.photos/seed/dog/900/600',        alt: 'A dog running freely in a green park' },
+      { url: 'https://picsum.photos/seed/park/900/600',       alt: 'Evening light through trees on a park path' },
+      { url: 'https://picsum.photos/seed/trail/900/600',      alt: 'A quiet nature trail on a sunny afternoon' },
+    ],
     imageUrl: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=800&q=80',
     imageAlt: 'Golden retriever dog in a green park on a sunny evening',
     storyNote: '강아지와 함께하는 시간은 언제나 현재에 집중하게 해줘요.',

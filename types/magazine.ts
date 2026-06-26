@@ -21,12 +21,18 @@ export type AmbienceId =
   | 'rain' | 'forest' | 'ocean' | 'cafe' | 'city'
   | 'night' | 'fireplace' | 'wind' | 'library' | 'train'
 
+export type StoryImage = {
+  url: string
+  alt: string
+}
+
 export type MagazineStory = {
   id: number
   title: string
   subtitleKo: string
-  imageUrl: string
+  imageUrl: string          // fallback / primary
   imageAlt: string
+  imagePool?: StoryImage[]  // 3장 랜덤 풀 — 있으면 세션마다 랜덤 선택
   storyNote?: string
   highlightPhrases: string[]
   paragraphs: MagazineParagraph[]

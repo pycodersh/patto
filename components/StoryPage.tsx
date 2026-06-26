@@ -36,6 +36,14 @@ function highlightText(text: string, phrases: string[]): React.ReactNode {
   )
 }
 
+function pickStoryImage(story: MagazineStory): { url: string; alt: string } {
+  const pool = story.imagePool
+  if (pool && pool.length > 0) {
+    return pool[Math.floor(Math.random() * pool.length)]
+  }
+  return { url: story.imageUrl, alt: story.imageAlt }
+}
+
 export function StoryPage({
   story,
   onNext,
@@ -51,6 +59,8 @@ export function StoryPage({
   hasAmbience,
 }: StoryPageProps) {
   const [liked, setLiked] = useState(false)
+  // 세션마다 랜덤 이미지 선택 (마운트 시 1회만 결정)
+  const [storyImg] = useState(() => pickStoryImage(story))
 
   function handleAudio() {
     if (isSpeaking) { stop(); return }
@@ -84,12 +94,17 @@ export function StoryPage({
 
           <div className="relative w-full h-48 rounded-xl overflow-hidden mb-7 shadow-sm">
             <Image
-              src={story.imageUrl}
-              alt={story.imageAlt}
+              src={storyImg.url}
+              alt={storyImg.alt}
               fill
               className="object-cover"
               sizes="100vw"
               priority
+              onError={(e) => {
+                // fallback to primary image on load failure
+                const img = e.currentTarget
+                if (img.src !== story.imageUrl) img.src = story.imageUrl
+              }}
             />
             {/* Ambience toggle — 스피커 왼쪽 */}
             {hasAmbience && (
