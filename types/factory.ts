@@ -105,16 +105,76 @@ export type TTSQueueItem = {
   generatedAt?: string
 }
 
+// ── Story Assets ──────────────────────────────────────────────────────────────
+// Package 안의 모든 파일 경로를 한 곳에서 관리한다.
+// AI 영상이 교체되면 경로만 바꾸면 된다.
+
+export type AssetStatus = 'missing' | 'generating' | 'ready'
+
+export type StoryAssets = {
+  // Scene 대표 영상
+  sceneVideo: {
+    status: AssetStatus
+    url: string                  // 예: /videos/story001-scene.mp4
+    poster?: string              // 영상 없을 때 대체 이미지
+    model?: string               // 생성 모델 (예: 'runway-gen3', 'veo-2')
+    generatedAt?: string
+  }
+  // 대표 포스터 이미지
+  scenePoster: {
+    status: AssetStatus
+    url: string                  // 예: /images/story001-poster.jpg
+  }
+  // 환경음
+  ambience: {
+    status: AssetStatus
+    url: string                  // 예: /audio/ambience/story001.mp3
+    type: string
+    volume: number
+  }
+  // Story TTS (단락별)
+  storyTts: {
+    voice: string
+    urls: Record<string, string> // paragraphId → /audio/tts/story001-p1.mp3
+  }
+  // Example TTS (패턴 예문별, 선택적)
+  exampleTts?: {
+    voice: string
+    urls: Record<string, string> // patternId-exampleIndex → url
+  }
+  // Scene 이미지 (AI 생성 후 연결)
+  sceneImages: {
+    sceneId: string
+    status: AssetStatus
+    url: string                  // 예: /images/story001-s1.jpg
+  }[]
+}
+
+// ── Package Version ────────────────────────────────────────────────────────────
+
+export type PackageVersion = {
+  version: string          // 예: 'v1', 'v2'
+  createdAt: string        // ISO date
+  createdBy: string        // 예: 'claude-opus-4', 'human'
+  changes: string[]        // 변경 내용 목록
+}
+
 // ── Story Package ─────────────────────────────────────────────────────────────
 // PATTO DB에 저장되는 단위. JSON 하나 = Story 하나.
 
 export type StoryPackage = {
-  version: '1.0'
+  schemaVersion: '2.0'
   packageId: string          // 예: 'story-001'
-  generatedAt: string        // ISO date
-  generatedBy?: string       // 예: 'claude-opus-4', 'gpt-4o', 'human'
+  language: 'en'
+  createdAt: string          // ISO date
+  updatedAt: string          // ISO date
+  currentVersion: string     // 예: 'v1'
+  history: PackageVersion[]  // 버전 이력
 
-  metadata: StoryMetadata
+  metadata: StoryMetadata & {
+    storyLength: number      // 총 문장 수 (QC 결과)
+    wordCount: number        // 총 단어 수 (추정)
+  }
 
   story: {
     id: number
@@ -122,16 +182,10 @@ export type StoryPackage = {
     subtitleKo: string
     storyNote?: string
     highlightPhrases: string[]
-    ambienceId?: string      // Web Audio 합성 환경음 ID
-    sceneVideo: FactorySceneVideo
-    ambience?: {
-      enabled: boolean
-      url: string
-      type: string
-      volume: number
-      label: string
-    }
+    ambienceId?: string
   }
+
+  assets: StoryAssets
 
   paragraphs: FactoryParagraph[]
   scenes: FactoryScene[]
@@ -141,8 +195,8 @@ export type StoryPackage = {
   // QC 결과 — runQC() 실행 후 추가됨
   quality?: {
     score: number
-    grade: string           // 'A+' | 'A' | 'B+' | 'B' | 'C' | 'F'
-    reviewStatus: string    // 'pass' | 'needs-review' | 'fail'
+    grade: string
+    reviewStatus: string
     checkedAt: string
     failCount: number
     warningCount: number

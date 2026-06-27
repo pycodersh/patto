@@ -1,21 +1,30 @@
 /**
- * PATTO Story Package — Story 001
+ * PATTO Story Package — Story 001  (Schema v2.0)
  *
- * 이 파일은 Story Factory가 생성하는 StoryPackage의 완성 예시다.
- * AI가 출력한 JSON → assembleStoryPackage() → 이 형태로 저장된다.
+ * Story Factory가 생성하는 StoryPackage의 완성 예시.
+ * buildPackage() 출력물 형태.
  *
- * 실제 사용:
+ * 사용:
  *   import { story001Package } from '@/data/factory/story-001-package'
- *   향후 DB(Supabase) import 시 이 구조 그대로 저장.
  */
 
 import type { StoryPackage } from '@/types/factory'
 
 export const story001Package: StoryPackage = {
-  version: '1.0',
+  schemaVersion: '2.0',
   packageId: 'story-001',
-  generatedAt: '2026-06-27T00:00:00.000Z',
-  generatedBy: 'human',
+  language: 'en',
+  createdAt: '2026-06-27T00:00:00.000Z',
+  updatedAt: '2026-06-27T00:00:00.000Z',
+  currentVersion: 'v1',
+  history: [
+    {
+      version: 'v1',
+      createdAt: '2026-06-27T00:00:00.000Z',
+      createdBy: 'human',
+      changes: ['Initial package created'],
+    },
+  ],
 
   metadata: {
     title: 'The Last Train Home',
@@ -27,9 +36,11 @@ export const story001Package: StoryPackage = {
     estimatedMinutes: 3,
     sceneCount: 3,
     patternCount: 5,
+    storyLength: 20,
+    wordCount: 260,
     tags: ['train', 'friday-night', 'spontaneous', 'friends', 'city', 'late-night'],
     targetAudience: 'Korean adults at B1 level who enjoy slice-of-life stories set in urban environments',
-    setting: 'A city train and a friend\'s apartment on a Friday night',
+    setting: "A city train and a friend's apartment on a Friday night",
   },
 
   story: {
@@ -46,20 +57,39 @@ export const story001Package: StoryPackage = {
       'I have to get up early',
     ],
     ambienceId: 'train',
+  },
+
+  assets: {
     sceneVideo: {
       status: 'missing',
-      url: '/videos/story1-scene.mp4',
+      url: '/videos/story001-scene.mp4',
       poster: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80',
-      prompt: `A young man in his late 20s sits alone by a train window at night. City lights blur past outside. He leans his head slightly against the glass, eyes distant, exhausted but peaceful. The carriage is quiet. Warm-cool lighting contrast. Natural ambient motion. 5–8 seconds. Seamless loop. No dialogue. No music. Only the ambient sound of the train.`,
-      source: 'ai',
+    },
+    scenePoster: {
+      status: 'missing',
+      url: '/images/story001-poster.jpg',
     },
     ambience: {
-      enabled: true,
-      url: '/audio/ambience/story1-train-night.mp3',
+      status: 'missing',
+      url: '/audio/ambience/story001.mp3',
       type: 'train',
       volume: 0.25,
-      label: 'Train ambience',
     },
+    storyTts: {
+      voice: 'us-female',
+      urls: {
+        'p1-1': '/audio/tts/story001-p1-1.mp3',
+        'p1-2': '/audio/tts/story001-p1-2.mp3',
+        'p1-3': '/audio/tts/story001-p1-3.mp3',
+        'p1-4': '/audio/tts/story001-p1-4.mp3',
+        'p1-5': '/audio/tts/story001-p1-5.mp3',
+      },
+    },
+    sceneImages: [
+      { sceneId: 's1-1', status: 'missing', url: '/images/story001-s1-1.jpg' },
+      { sceneId: 's1-2', status: 'missing', url: '/images/story001-s1-2.jpg' },
+      { sceneId: 's1-3', status: 'missing', url: '/images/story001-s1-3.jpg' },
+    ],
   },
 
   paragraphs: [
@@ -226,4 +256,13 @@ export const story001Package: StoryPackage = {
     { paragraphId: 'p1-4', text: "When I arrived, the apartment was warm and full of laughter. There were more people than I expected, but the feeling was exactly right. We talked, we ate, and time passed faster than it should have.", voice: 'us-female', status: 'pending' },
     { paragraphId: 'p1-5', text: "I took the last train home. I didn't want to leave, but I have to get up early tomorrow. The city looked different on the way back — quieter, softer. I can still hear everyone laughing as I close my eyes.", voice: 'us-female', status: 'pending' },
   ],
+
+  quality: {
+    score: 99,
+    grade: 'A+',
+    reviewStatus: 'pass',
+    checkedAt: '2026-06-27T00:00:00.000Z',
+    failCount: 0,
+    warningCount: 1,
+  },
 }

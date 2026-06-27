@@ -8,6 +8,17 @@
  * 전체 Pipeline: buildStoryPackage() 순서대로 호출.
  */
 
+// Builder
+export { buildPackage, updatePackageVersion, markAssetReady } from './builder'
+export type { BuildPackageInput, VersionUpdate } from './builder'
+
+// Library
+export {
+  createLibrary, addToLibrary, getPackage, getPackageByStoryId,
+  filterLibrary, exportPackage, exportLibrary, importPackage, getLibraryStats,
+} from './library'
+export type { StoryLibrary, LibraryEntry, LibraryFilter, LibraryStats, ImportResult, AddToLibraryOptions } from './library'
+
 // QC
 export { runQC, mergeAIChecks, toPackageQuality, printQCReport } from './quality'
 export { buildTranslationQCPrompt, buildPatternNaturalnessQCPrompt, buildPromptConsistencyQCPrompt } from './quality'
@@ -155,16 +166,34 @@ export function assembleStoryPackage(input: AssembleInput): StoryPackage {
     status: 'pending',
   }))
 
+  // assembleStoryPackage는 buildPackage()의 경량 래퍼.
+  // 새 코드에서는 lib/factory/builder.ts의 buildPackage()를 사용한다.
+  const pad = String(storyId).padStart(3, '0')
+  const now = new Date().toISOString()
+
+  const storyTtsUrls: Record<string, string> = {}
+  paragraphs.forEach(p => { storyTtsUrls[p.id] = `/audio/tts/story${pad}-${p.id}.mp3` })
+
+  const allText   = paragraphs.map(p => p.english).join(' ')
+  const wordCount = allText.trim().split(/\s+/).filter(Boolean).length
+  const storyLength = paragraphs.reduce((sum, p) =>
+    sum + p.english.split(/[.!?]+/).filter(s => s.trim().length > 2).length, 0)
+
   return {
-    version: '1.0',
-    packageId: `story-${String(storyId).padStart(3, '0')}`,
-    generatedAt: new Date().toISOString(),
-    generatedBy: 'claude-opus-4',
+    schemaVersion: '2.0',
+    packageId: `story-${pad}`,
+    language: 'en',
+    createdAt: now,
+    updatedAt: now,
+    currentVersion: 'v1',
+    history: [{ version: 'v1', createdAt: now, createdBy: 'claude-opus-4', changes: ['Initial package created'] }],
 
     metadata: {
       ...metadataOutput,
       sceneCount: scenes.length,
       patternCount: patterns.length,
+      storyLength,
+      wordCount,
     },
 
     story: {
@@ -173,14 +202,14 @@ export function assembleStoryPackage(input: AssembleInput): StoryPackage {
       subtitleKo: metadataOutput.titleKo,
       storyNote: storyOutput.storyNote,
       highlightPhrases: storyOutput.highlightPhrases,
-      ambienceId: undefined,
-      sceneVideo: {
-        status: 'missing',
-        url: `/videos/story${storyId}-scene.mp4`,
-        poster: undefined,
-        prompt: scenes[0]?.videoPrompt ?? '',
-        source: 'ai',
-      },
+    },
+
+    assets: {
+      sceneVideo:  { status: 'missing', url: `/videos/story${pad}-scene.mp4`, poster: undefined },
+      scenePoster: { status: 'missing', url: `/images/story${pad}-poster.jpg` },
+      ambience:    { status: 'missing', url: `/audio/ambience/story${pad}.mp3`, type: 'ambient', volume: 0.25 },
+      storyTts:    { voice, urls: storyTtsUrls },
+      sceneImages: scenes.map(s => ({ sceneId: s.id, status: 'missing' as const, url: `/images/story${pad}-${s.id}.jpg` })),
     },
 
     paragraphs,
