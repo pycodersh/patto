@@ -34,6 +34,8 @@ export function StoryImageSlider({
 }: Props) {
   const [currentIdx, setCurrentIdx] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  // TTS가 한 번이라도 재생되면 auto-timer를 다시 켜지 않는다 (마지막 Scene 유지)
+  const ttsHasPlayedRef = useRef(false)
 
   // ── 자동 타이머 ─────────────────────────────────────────────────────────
   const stopTimer = useCallback(() => {
@@ -47,12 +49,13 @@ export function StoryImageSlider({
     }, interval * 1000)
   }, [stopTimer, interval, images.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // TTS 활성 중에는 타이머 중단, 비활성 시 재시작
+  // TTS 활성 → 타이머 중단 / 비활성 → TTS를 한 번도 안 썼을 때만 타이머 재시작
   useEffect(() => {
     if (isTTSActive) {
+      ttsHasPlayedRef.current = true
       stopTimer()
     } else {
-      if (images.length > 1) startTimer()
+      if (!ttsHasPlayedRef.current && images.length > 1) startTimer()
     }
     return stopTimer
   }, [isTTSActive, startTimer, stopTimer, images.length])
