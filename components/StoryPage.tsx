@@ -62,9 +62,16 @@ export function StoryPage({
   const scene = story.sceneVideo
   const sceneReady = scene?.status === 'ready' && !!scene.url
 
-  // dev 전용: Scene 1 videoPrompt 확인
-  if (process.env.NODE_ENV === 'development' && scene?.prompt) {
-    console.log('[Story sceneVideo prompt]', scene.prompt)
+  // dev 전용 디버그 로그
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[PATTO DEBUG]', {
+      APP_VERSION: 'package-render-v2',
+      STORY_SOURCE: `story-00${story.id}-package.ts`,
+      STORY_ID: story.id,
+      VIDEO_STATUS: scene?.status ?? 'none',
+      VIDEO_URL: scene?.url ?? 'none',
+      TTS_URL: `story-${story.id}-p${story.id}-1-${prefs.voice}.mp3`,
+    })
   }
 
   function handleAudio() {
@@ -99,6 +106,17 @@ export function StoryPage({
               </span>
             </button>
           </div>
+
+          {/* dev 디버그 배너 */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mb-3 rounded-lg bg-black/80 px-3 py-2 font-mono text-[10px] leading-relaxed text-green-400">
+              <div>APP_VERSION: package-render-v2</div>
+              <div>STORY_SOURCE: story-00{story.id}-package.ts</div>
+              <div>VIDEO_STATUS: {scene?.status ?? 'none'}</div>
+              <div>VIDEO_URL: {scene?.url ?? 'none'}</div>
+              <div>TTS_URL: story-{story.id}-p{story.id}-1-{prefs.voice}.mp3</div>
+            </div>
+          )}
 
           {/* Scene Video 또는 커버 이미지
                - status === 'ready'  → AI Scene Video 재생
