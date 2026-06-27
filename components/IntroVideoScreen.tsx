@@ -12,7 +12,10 @@ type Props = {
 export function IntroVideoScreen({ story, intro, onComplete }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const doneRef  = useRef(false)
-  const [exiting, setExiting] = useState(false)
+
+  const [exiting,     setExiting]     = useState(false)
+  const [showPlayBtn, setShowPlayBtn] = useState(false)
+  const [videoError,  setVideoError]  = useState(false)
 
   console.log('[IntroVideoScreen] mounted', story.id)
   console.log('[IntroVideoScreen] video url', intro.url)
@@ -21,28 +24,13 @@ export function IntroVideoScreen({ story, intro, onComplete }: Props) {
     const el = videoRef.current
     if (!el) return
 
-    const onCanPlay = () => {
-      console.log('[IntroVideoScreen] canplay fired, duration:', el.duration)
-      el.play().catch(e => console.log('[IntroVideoScreen] play() failed:', e))
-    }
-    const onPlay   = () => console.log('[IntroVideoScreen] play event fired')
-    const onEnded  = () => { console.log('[IntroVideoScreen] ended'); exit() }
-    const onError  = () => console.log('[IntroVideoScreen] video error — staying on screen')
-
-    el.addEventListener('canplay', onCanPlay)
-    el.addEventListener('play',    onPlay)
-    el.addEventListener('ended',   onEnded)
-    el.addEventListener('error',   onError)
-
-    if (el.readyState >= 3) onCanPlay()
-
-    return () => {
-      el.removeEventListener('canplay', onCanPlay)
-      el.removeEventListener('play',    onPlay)
-      el.removeEventListener('ended',   onEnded)
-      el.removeEventListener('error',   onError)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // autoPlay가 브라우저 정책으로 차단된 경우 play() 직접 시도
+    el.play()
+      .then(() => console.log('[IntroVideo] play promise success'))
+      .catch(err => {
+        console.log('[IntroVideo] play promise rejected', err)
+        setShowPlayBtn(true)
+      })
   }, [])
 
   function exit() {
@@ -69,14 +57,27 @@ export function IntroVideoScreen({ story, intro, onComplete }: Props) {
         ref={videoRef}
         src={intro.url}
         poster={intro.poster}
+        autoPlay
         muted
         playsInline
-        autoPlay
         preload="auto"
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        onLoadStart={() => console.log('[IntroVideo] loadstart')}
+        onLoadedMetadata={e => console.log('[IntroVideo] loadedmetadata, duration:', e.currentTarget.duration)}
+        onLoadedData={() => console.log('[IntroVideo] loadeddata')}
+        onCanPlay={() => console.log('[IntroVideo] canplay')}
+        onPlay={() => { console.log('[IntroVideo] play'); setShowPlayBtn(false) }}
+        onPlaying={() => console.log('[IntroVideo] playing')}
+        onPause={() => console.log('[IntroVideo] pause')}
+        onEnded={() => { console.log('[IntroVideo] ended'); exit() }}
+        onError={e => {
+          const err = e.currentTarget.error
+          console.log('[IntroVideo] error', err?.code, err?.message)
+          setVideoError(true)
+        }}
       />
 
-      {/* 그라데이션 */}
+      {/* 그라데이션 오버레이 */}
       <div
         style={{
           position:      'absolute',
@@ -86,7 +87,7 @@ export function IntroVideoScreen({ story, intro, onComplete }: Props) {
         }}
       />
 
-      {/* 디버그 텍스트 — 화면에 보이면 라우팅 성공 */}
+      {/* 디버그 텍스트 */}
       <div
         style={{
           position:   'absolute',
@@ -94,7 +95,7 @@ export function IntroVideoScreen({ story, intro, onComplete }: Props) {
           left:       0,
           right:      0,
           textAlign:  'center',
-          color:      'rgba(255,255,255,0.6)',
+          color:      'rgba(255,255,255,0.5)',
           fontSize:   11,
           fontFamily: 'monospace',
           letterSpacing: '0.1em',
@@ -103,6 +104,57 @@ export function IntroVideoScreen({ story, intro, onComplete }: Props) {
       >
         INTRO VIDEO SCREEN - STORY {story.id}
       </div>
+
+      {/* 영상 에러 표시 */}
+      {videoError && (
+        <div
+          style={{
+            position:  'absolute',
+            top:       '50%',
+            left:      0,
+            right:     0,
+            transform: 'translateY(-50%)',
+            textAlign: 'center',
+            color:     'rgba(255,100,100,0.8)',
+            fontSize:  12,
+            fontFamily: 'monospace',
+          }}
+        >
+          Video failed to load
+        </div>
+      )}
+
+      {/* autoPlay 차단 시 수동 Play 버튼 */}
+      {showPlayBtn && !videoError && (
+        <button
+          type="button"
+          onClick={() => {
+            videoRef.current?.play()
+              .then(() => setShowPlayBtn(false))
+              .catch(e => console.log('[IntroVideo] manual play failed', e))
+          }}
+          style={{
+            position:  'absolute',
+            top:       '50%',
+            left:      '50%',
+            transform: 'translate(-50%, -50%)',
+            width:     64,
+            height:    64,
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.15)',
+            border:    '2px solid rgba(255,255,255,0.5)',
+            color:     '#fff',
+            fontSize:  28,
+            cursor:    'pointer',
+            display:   'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(6px)',
+          }}
+        >
+          ▶
+        </button>
+      )}
 
       {/* Skip */}
       <button

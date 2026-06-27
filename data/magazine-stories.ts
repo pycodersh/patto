@@ -16,13 +16,11 @@ export const magazineStories: MagazineStory[] = [
     introVideo: {
       enabled: true,
       source: 'local',
-      // Pexels CDN blocks cross-origin (403). Upload to Supabase Storage and replace this URL.
-      // Download a clip from pexels.com → upload to supabase: storage/intro-videos/story-1.mp4
-      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      url: '/videos/story1-intro.mp4',
       poster: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80',
-      credit: 'Placeholder – replace with production clip',
-      keywords: ['friends party evening', 'night gathering', 'cinematic social'],
-      durationSec: 15,
+      credit: 'Local test video',
+      keywords: ['test intro video'],
+      durationSec: 8,
     },
     storyNote: '가끔 계획에 없던 순간이 가장 좋은 추억이 되기도 해요.',
     highlightPhrases: [
