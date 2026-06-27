@@ -61,7 +61,7 @@ export const story001Package: StoryPackage = {
 
   assets: {
     sceneVideo: {
-      status: 'missing',
+      status: 'ready',
       url: '/videos/story001-scene.mp4',
       poster: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80',
     },
