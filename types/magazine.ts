@@ -26,6 +26,19 @@ export type StoryImage = {
   alt: string
 }
 
+export type IntroVideoSource = 'pexels' | 'local' | 'ai'
+
+export type IntroVideo = {
+  enabled: boolean
+  source: IntroVideoSource
+  url: string
+  poster?: string           // 영상 로딩 전 표시할 이미지
+  credit?: string           // "Video by Creator on Pexels"
+  pexelsUrl?: string        // 원본 Pexels 페이지 URL
+  keywords?: string[]       // 관리자 검색 시 사용할 키워드
+  durationSec?: number      // 영상 길이 (참고용)
+}
+
 export type MagazineStory = {
   id: number
   title: string
@@ -38,4 +51,5 @@ export type MagazineStory = {
   paragraphs: MagazineParagraph[]
   patterns: MagazinePattern[]
   ambienceId?: AmbienceId
+  introVideo?: IntroVideo   // 시네마틱 인트로 영상 (선택적)
 }

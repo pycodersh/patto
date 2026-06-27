@@ -13,6 +13,17 @@ export const magazineStories: MagazineStory[] = [
       { url: 'https://images.unsplash.com/photo-1529543544282-ea669407fca3?auto=format&fit=crop&w=800&q=80', alt: 'People enjoying a lively social gathering' },
       { url: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=800&q=80', alt: 'A cozy gathering of friends in the evening' },
     ],
+    introVideo: {
+      enabled: true,
+      source: 'pexels',
+      // Pexels "friends party evening" cinematic clip
+      url: 'https://videos.pexels.com/video-files/3536372/3536372-hd_1280_720_30fps.mp4',
+      poster: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80',
+      credit: 'Video from Pexels',
+      pexelsUrl: 'https://www.pexels.com/video/3536372/',
+      keywords: ['friends party evening', 'night gathering', 'cinematic social'],
+      durationSec: 8,
+    },
     storyNote: '가끔 계획에 없던 순간이 가장 좋은 추억이 되기도 해요.',
     highlightPhrases: [
       'I just wanted to relax at home',

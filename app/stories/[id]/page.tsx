@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 
-import { MagazineEngine } from '@/components/MagazineEngine'
+import { StoryPageClient } from '@/components/StoryPageClient'
 import { magazineStories } from '@/data/magazine-stories'
 
 type Props = {
@@ -14,14 +14,14 @@ export function generateStaticParams() {
 
 export default async function StoryDetailPage({ params, searchParams }: Props) {
   const { id } = await params
-  const { v } = await searchParams
+  const { v }  = await searchParams
   const storyId = Number(id)
-  const story = magazineStories.find((s) => s.id === storyId)
+  const story   = magazineStories.find((s) => s.id === storyId)
 
   if (!story) notFound()
 
   return (
-    <MagazineEngine
+    <StoryPageClient
       story={story}
       allStories={magazineStories}
       initialView={v === 'p' ? 'patterns' : 'story'}
