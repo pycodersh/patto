@@ -13,24 +13,18 @@ export function IntroVideoScreen({ story, intro, onComplete }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const doneRef  = useRef(false)
 
+  const [visible,     setVisible]     = useState(false)  // play 후 fade-in
   const [exiting,     setExiting]     = useState(false)
   const [showPlayBtn, setShowPlayBtn] = useState(false)
   const [videoError,  setVideoError]  = useState(false)
-
-  console.log('[IntroVideoScreen] mounted', story.id)
-  console.log('[IntroVideoScreen] video url', intro.url)
 
   useEffect(() => {
     const el = videoRef.current
     if (!el) return
 
-    // autoPlay가 브라우저 정책으로 차단된 경우 play() 직접 시도
     el.play()
-      .then(() => console.log('[IntroVideo] play promise success'))
-      .catch(err => {
-        console.log('[IntroVideo] play promise rejected', err)
-        setShowPlayBtn(true)
-      })
+      .then(() => setShowPlayBtn(false))
+      .catch(() => setShowPlayBtn(true))
   }, [])
 
   function exit() {
@@ -48,11 +42,13 @@ export function IntroVideoScreen({ story, intro, onComplete }: Props) {
         inset:      0,
         zIndex:     60,
         background: '#000',
-        opacity:    exiting ? 0 : 1,
-        transition: exiting ? 'opacity 0.38s ease-in' : 'none',
+        opacity:    visible && !exiting ? 1 : 0,
+        transition: visible
+          ? exiting ? 'opacity 0.38s ease-in' : 'none'
+          : 'none',
+        pointerEvents: visible ? 'auto' : 'none',
       }}
     >
-      {/* 배경 영상 */}
       <video
         ref={videoRef}
         src={intro.url}
@@ -62,22 +58,12 @@ export function IntroVideoScreen({ story, intro, onComplete }: Props) {
         playsInline
         preload="auto"
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-        onLoadStart={() => console.log('[IntroVideo] loadstart')}
-        onLoadedMetadata={e => console.log('[IntroVideo] loadedmetadata, duration:', e.currentTarget.duration)}
-        onLoadedData={() => console.log('[IntroVideo] loadeddata')}
-        onCanPlay={() => console.log('[IntroVideo] canplay')}
-        onPlay={() => { console.log('[IntroVideo] play'); setShowPlayBtn(false) }}
-        onPlaying={() => console.log('[IntroVideo] playing')}
-        onPause={() => console.log('[IntroVideo] pause')}
-        onEnded={() => { console.log('[IntroVideo] ended'); exit() }}
-        onError={e => {
-          const err = e.currentTarget.error
-          console.log('[IntroVideo] error', err?.code, err?.message)
-          setVideoError(true)
-        }}
+        onPlay={() => setVisible(true)}
+        onEnded={exit}
+        onError={() => { setVideoError(true); setVisible(true) }}
       />
 
-      {/* 그라데이션 오버레이 */}
+      {/* 그라데이션 */}
       <div
         style={{
           position:      'absolute',
@@ -87,69 +73,24 @@ export function IntroVideoScreen({ story, intro, onComplete }: Props) {
         }}
       />
 
-      {/* 디버그 텍스트 */}
-      <div
-        style={{
-          position:   'absolute',
-          top:        60,
-          left:       0,
-          right:      0,
-          textAlign:  'center',
-          color:      'rgba(255,255,255,0.5)',
-          fontSize:   11,
-          fontFamily: 'monospace',
-          letterSpacing: '0.1em',
-          pointerEvents: 'none',
-        }}
-      >
-        INTRO VIDEO SCREEN - STORY {story.id}
-      </div>
-
-      {/* 영상 에러 표시 */}
+      {/* 영상 에러 */}
       {videoError && (
-        <div
-          style={{
-            position:  'absolute',
-            top:       '50%',
-            left:      0,
-            right:     0,
-            transform: 'translateY(-50%)',
-            textAlign: 'center',
-            color:     'rgba(255,100,100,0.8)',
-            fontSize:  12,
-            fontFamily: 'monospace',
-          }}
-        >
+        <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, transform: 'translateY(-50%)', textAlign: 'center', color: 'rgba(255,80,80,0.8)', fontSize: 12, fontFamily: 'monospace' }}>
           Video failed to load
         </div>
       )}
 
-      {/* autoPlay 차단 시 수동 Play 버튼 */}
+      {/* autoPlay 차단 시 수동 Play */}
       {showPlayBtn && !videoError && (
         <button
           type="button"
-          onClick={() => {
-            videoRef.current?.play()
-              .then(() => setShowPlayBtn(false))
-              .catch(e => console.log('[IntroVideo] manual play failed', e))
-          }}
+          onClick={() => videoRef.current?.play().then(() => setShowPlayBtn(false)).catch(() => {})}
           style={{
-            position:  'absolute',
-            top:       '50%',
-            left:      '50%',
-            transform: 'translate(-50%, -50%)',
-            width:     64,
-            height:    64,
-            borderRadius: '50%',
-            background: 'rgba(255,255,255,0.15)',
-            border:    '2px solid rgba(255,255,255,0.5)',
-            color:     '#fff',
-            fontSize:  28,
-            cursor:    'pointer',
-            display:   'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backdropFilter: 'blur(6px)',
+            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            width: 64, height: 64, borderRadius: '50%',
+            background: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.5)',
+            color: '#fff', fontSize: 28, cursor: 'pointer', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(6px)',
           }}
         >
           ▶
@@ -163,10 +104,8 @@ export function IntroVideoScreen({ story, intro, onComplete }: Props) {
         style={{
           position: 'absolute', top: 20, right: 20,
           padding: '5px 14px',
-          border: '1px solid rgba(255,255,255,0.30)',
-          borderRadius: 20,
-          background: 'rgba(0,0,0,0.22)',
-          color: 'rgba(255,255,255,0.70)',
+          border: '1px solid rgba(255,255,255,0.30)', borderRadius: 20,
+          background: 'rgba(0,0,0,0.22)', color: 'rgba(255,255,255,0.70)',
           fontSize: 10, letterSpacing: '0.14em', fontWeight: 600,
           cursor: 'pointer', backdropFilter: 'blur(6px)',
         }}
