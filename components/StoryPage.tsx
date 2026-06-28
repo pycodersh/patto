@@ -65,17 +65,6 @@ export function StoryPage({
       ? story.slideImages
       : [{ url: story.imageUrl, alt: story.imageAlt }]
 
-  // dev 전용 디버그 로그
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[PATTO DEBUG]', {
-      APP_VERSION: 'image-slider-v1',
-      STORY_SOURCE: `story-00${story.id}-package.ts`,
-      STORY_ID: story.id,
-      SLIDE_COUNT: slideImages.length,
-      TTS_URL: `story-${story.id}-p${story.id}-1-${prefs.voice}.mp3`,
-    })
-  }
-
   function handleAudio() {
     if (isSpeaking) { stop(); return }
     const texts     = story.paragraphs.map(p => p.english)
@@ -108,16 +97,6 @@ export function StoryPage({
               </span>
             </button>
           </div>
-
-          {/* dev 디버그 배너 */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mb-3 rounded-lg bg-black/80 px-3 py-2 font-mono text-[10px] leading-relaxed text-green-400">
-              <div>APP_VERSION: image-slider-v1</div>
-              <div>STORY_SOURCE: story-00{story.id}-package.ts</div>
-              <div>SLIDE_COUNT: {slideImages.length}</div>
-              <div>TTS_URL: story-{story.id}-p{story.id}-1-{prefs.voice}.mp3</div>
-            </div>
-          )}
 
           {/* Image Slider — Story 장면 이미지 자동 슬라이드 */}
           <StoryImageSlider
