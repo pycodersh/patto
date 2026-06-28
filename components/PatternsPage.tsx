@@ -1,12 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Volume2, Square } from 'lucide-react'
 import type { MagazineStory } from '@/types/magazine'
 import { usePreferences } from '@/contexts/PreferencesContext'
 import { PatternPracticeCard } from '@/components/PatternPracticeCard'
 import { getPatternExamples } from '@/data/pattern-examples'
-import { getRecord } from '@/lib/srs/storage'
 
 type PatternsPageProps = {
   story: MagazineStory
@@ -28,14 +27,6 @@ export function PatternsPage({ story, onPrev, onNext, hasNext, onOpenPicker }: P
   const playAllRef = useRef(false)
   const [autoKey, setAutoKey] = useState(0)
 
-  // SRS 반복 횟수 (헤더 표시) — 재생 완료 시 갱신
-  const [statsVersion, setStatsVersion] = useState(0)
-  const [repeats, setRepeats] = useState<number[]>([])
-
-  useEffect(() => {
-    setRepeats(story.patterns.map((p) => getRecord('pattern', p.id)?.repeatCount ?? 0))
-  }, [story.id, story.patterns, statsVersion])
-
   function listenAll() {
     if (playingAll || activeId) {
       playAllRef.current = false
@@ -56,7 +47,6 @@ export function PatternsPage({ story, onPrev, onNext, hasNext, onOpenPicker }: P
   }
 
   function handleFinished(idx: number) {
-    setStatsVersion((v) => v + 1)
     if (playAllRef.current && idx + 1 < total) {
       setActiveId(story.patterns[idx + 1].id)
       setAutoKey((k) => k + 1)
@@ -76,12 +66,12 @@ export function PatternsPage({ story, onPrev, onNext, hasNext, onOpenPicker }: P
           {/* ── Story 히어로: 대표 이미지 + 제목 + 반복 횟수 ── */}
           <div className="flex gap-4 items-stretch mb-5">
             <div
-              className="w-24 rounded-2xl bg-cover bg-center shrink-0 shadow-sm"
+              className="w-36 rounded-2xl bg-cover bg-center shrink-0 shadow-sm"
               style={{ backgroundImage: `url(${cover})`, minHeight: 96 }}
               aria-label={story.imageAlt}
               role="img"
             />
-            <div className="flex-1 min-w-0 flex flex-col">
+            <div className="flex-1 min-w-0 flex flex-col justify-center">
               <p className="text-[9px] tracking-[0.28em] font-bold text-[var(--pa)] mb-1">
                 STORY {String(story.id).padStart(2, '0')}
               </p>
@@ -89,25 +79,10 @@ export function PatternsPage({ story, onPrev, onNext, hasNext, onOpenPicker }: P
                 {story.title}
               </h2>
               <p className="text-[0.72rem] text-[var(--pm)] mt-0.5 leading-snug">{story.subtitleKo}</p>
-              {story.storyNote && (
-                <p className="text-[0.72rem] text-[var(--pm)] mt-auto pt-1.5 leading-relaxed line-clamp-2">
-                  {story.storyNote}
-                </p>
-              )}
             </div>
           </div>
 
-          {/* 진행 점 */}
-          <div className="flex items-center gap-1.5 mb-6">
-            {repeats.map((n, i) => (
-              <span
-                key={i}
-                className={`block w-2 h-2 rounded-full ${n > 0 ? 'bg-[var(--pa)]' : 'bg-[var(--pd)]'}`}
-              />
-            ))}
-          </div>
-
-          <div className="h-px bg-[var(--pd)]" />
+          <div className="h-px bg-[var(--pd)] mt-6" />
 
           {/* PATTERNS 제목 + 전체 듣기 */}
           <div className="flex items-end justify-between mt-5 mb-5">
@@ -121,7 +96,7 @@ export function PatternsPage({ story, onPrev, onNext, hasNext, onOpenPicker }: P
               type="button"
               onClick={listenAll}
               aria-label={playingAll ? '전체 정지' : '전체 듣기'}
-              className="shrink-0 flex items-center gap-1.5 rounded-full border border-[var(--pd)] px-3.5 py-2 text-[11px] font-bold text-[var(--pt2)] hover:border-[var(--pa)] hover:text-[var(--pa)] transition-colors cursor-pointer"
+              className="shrink-0 flex items-center gap-1.5 rounded-full px-2 py-2 text-[11px] font-bold text-[var(--pt2)] hover:text-[var(--pa)] transition-colors cursor-pointer"
             >
               {playingAll ? <Square className="w-3 h-3 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
               {playingAll ? '정지' : '전체 듣기'}

@@ -8,7 +8,7 @@ import type { PracticeExample } from '@/data/pattern-examples'
 import { usePreferences } from '@/contexts/PreferencesContext'
 import { RATE_MAP, type VoiceKey } from '@/lib/settings/preferences'
 import { ttsProvider, getPitchForKey, patternExampleAudioUrl } from '@/lib/tts'
-import { getRecord, recordPatternPractice } from '@/lib/srs/storage'
+import { recordPatternPractice } from '@/lib/srs/storage'
 
 type Props = {
   storyId: number
@@ -36,16 +36,11 @@ export function PatternPracticeCard({
 
   const [phase, setPhase] = useState<Phase>('idle')
   const [currentIdx, setCurrentIdx] = useState(-1)
-  const [repeatCount, setRepeatCount] = useState(0)
   const [feedback, setFeedback] = useState<string | null>(null)
 
   const runningRef = useRef(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const startedAtRef = useRef(0)
-
-  useEffect(() => {
-    setRepeatCount(getRecord('pattern', pattern.id)?.repeatCount ?? 0)
-  }, [pattern.id])
 
   const clearTimer = () => {
     if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null }
@@ -70,7 +65,6 @@ export function PatternPracticeCard({
     runningRef.current = false
     const duration = Date.now() - startedAtRef.current
     const rec = recordPatternPractice(pattern.id, storyId, pattern.pattern, storyTitle, duration)
-    setRepeatCount(rec.repeatCount)
     setFeedback(`반복 ${rec.repeatCount}회 완료`)
     setPhase('done')
     setCurrentIdx(-1)
@@ -142,23 +136,19 @@ export function PatternPracticeCard({
           <p className="font-playfair text-[1.2rem] font-bold text-[var(--pt)] leading-snug">{pattern.pattern}</p>
           {showTranslation && <p className="text-[0.74rem] text-[var(--pa)] mt-0.5">{pattern.meaningKo}</p>}
         </div>
-        <span className="shrink-0 text-[10px] font-semibold text-[var(--pm)] bg-[var(--pc)] rounded-full px-2.5 py-1 mt-0.5">
-          반복 {repeatCount}회
-        </span>
+        {/* 스피커 아이콘 (배경 없음) — 패턴 옆 */}
+        <button
+          type="button"
+          onClick={handlePlay}
+          aria-label={isPlaying ? '정지' : '예문 듣기'}
+          className={[
+            'shrink-0 p-1 mt-0.5 transition-colors cursor-pointer',
+            isPlaying ? 'text-[var(--pa)] animate-pulse' : 'text-[var(--pm2)] hover:text-[var(--pa)]',
+          ].join(' ')}
+        >
+          <Volume2 className="w-[18px] h-[18px]" strokeWidth={1.8} />
+        </button>
       </div>
-
-      {/* 스피커 아이콘 (배경 없음) — 패턴 아래 */}
-      <button
-        type="button"
-        onClick={handlePlay}
-        aria-label={isPlaying ? '정지' : '예문 듣기'}
-        className={[
-          'mt-2 ml-1 p-1 transition-colors cursor-pointer',
-          isPlaying ? 'text-[var(--pa)] animate-pulse' : 'text-[var(--pm2)] hover:text-[var(--pa)]',
-        ].join(' ')}
-      >
-        <Volume2 className="w-[18px] h-[18px]" strokeWidth={1.8} />
-      </button>
 
       {/* 예문 5개 (항상 표시) */}
       <div className="mt-3 space-y-0.5">
@@ -181,12 +171,7 @@ export function PatternPracticeCard({
                   {i + 1}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-[0.82rem] font-medium text-[var(--pt)] leading-snug">{ex.en}</p>
-                    {ex.domain && (
-                      <span className="text-[8px] font-bold text-[var(--pm)] bg-[var(--pd)] rounded px-1.5 py-0.5">{ex.domain}</span>
-                    )}
-                  </div>
+                  <p className="text-[0.82rem] font-medium text-[var(--pt)] leading-snug">{ex.en}</p>
                   {showTranslation && (
                     <p className="text-[0.7rem] text-[var(--pm)] mt-0.5 leading-snug">{ex.ko}</p>
                   )}
