@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Volume2, Square, Check } from 'lucide-react'
+import { Volume2, Check } from 'lucide-react'
 
 import type { MagazinePattern } from '@/types/magazine'
 import type { PracticeExample } from '@/data/pattern-examples'
@@ -18,7 +18,9 @@ type Props = {
   examples: PracticeExample[]
   index: number            // 1-based 위치 (Pattern N)
   active: boolean          // 이 카드가 현재 재생 중인 카드인지 (한 번에 하나만)
-  onRequestPlay: () => void // Play 누르면 부모에 알려 다른 카드 정지
+  onRequestPlay: () => void // 수동 재생 시 부모에 알려 다른 카드 정지
+  autoPlayKey?: number     // "전체 듣기": 값이 바뀌고 active면 자동 시작
+  onFinished?: () => void  // 5개 예문 재생 완료 시
 }
 
 type Phase = 'idle' | 'speaking' | 'pause' | 'done'
@@ -26,7 +28,8 @@ type Phase = 'idle' | 'speaking' | 'pause' | 'done'
 const FOLLOW_PAUSE_MS = 2500
 
 export function PatternPracticeCard({
-  storyId, storyTitle, voice, pattern, examples, index, active, onRequestPlay,
+  storyId, storyTitle, voice, pattern, examples, index,
+  active, onRequestPlay, autoPlayKey, onFinished,
 }: Props) {
   const { prefs } = usePreferences()
   const showTranslation = prefs.translationLang !== 'none'
@@ -71,7 +74,8 @@ export function PatternPracticeCard({
     setFeedback(`반복 ${rec.repeatCount}회 완료`)
     setPhase('done')
     setCurrentIdx(-1)
-  }, [pattern.id, pattern.pattern, storyId, storyTitle])
+    onFinished?.()
+  }, [pattern.id, pattern.pattern, storyId, storyTitle, onFinished])
 
   const playFrom = useCallback((i: number) => {
     if (!runningRef.current) return
@@ -104,52 +108,63 @@ export function PatternPracticeCard({
     })
   }, [examples, finish, pattern.id, prefs.speechRate, voice])
 
-  const handlePlay = () => {
-    if (phase === 'speaking' || phase === 'pause') { stop(); return }
-    onRequestPlay()
+  const startPlayback = useCallback(() => {
     setFeedback(null)
     runningRef.current = true
     startedAtRef.current = Date.now()
     playFrom(0)
+  }, [playFrom])
+
+  // "전체 듣기" 자동 시작 — autoPlayKey가 바뀌고 이 카드가 active일 때
+  const seenAutoRef = useRef(autoPlayKey)
+  useEffect(() => {
+    if (autoPlayKey === seenAutoRef.current) return
+    seenAutoRef.current = autoPlayKey
+    if (active) startPlayback()
+  }, [autoPlayKey, active, startPlayback])
+
+  const handlePlay = () => {
+    if (phase === 'speaking' || phase === 'pause') { stop(); return }
+    onRequestPlay()
+    startPlayback()
   }
 
   const isPlaying = phase === 'speaking' || phase === 'pause'
 
   return (
     <div className={[
-      'rounded-3xl border bg-[var(--pb)] px-5 py-6 transition-colors',
+      'rounded-3xl border bg-[var(--pb)] px-5 py-5 transition-colors',
       isPlaying ? 'border-[var(--pa)]' : 'border-[var(--pd)]',
     ].join(' ')}>
       {/* Pattern 헤더 */}
       <div className="flex items-start gap-3">
-        <span className="font-playfair text-[1.5rem] font-bold text-[var(--pa)] leading-none shrink-0 pt-1">
+        <span className="font-playfair text-[1.4rem] font-bold text-[var(--pa)] leading-none shrink-0 pt-1">
           {String(index).padStart(2, '0')}
         </span>
         <div className="flex-1 min-w-0">
-          <p className="font-playfair text-[1.3rem] font-bold text-[var(--pt)] leading-snug">{pattern.pattern}</p>
-          {showTranslation && <p className="text-[0.78rem] text-[var(--pa)] mt-0.5">{pattern.meaningKo}</p>}
+          <p className="font-playfair text-[1.2rem] font-bold text-[var(--pt)] leading-snug">{pattern.pattern}</p>
+          {showTranslation && <p className="text-[0.74rem] text-[var(--pa)] mt-0.5">{pattern.meaningKo}</p>}
         </div>
         <span className="shrink-0 text-[10px] font-semibold text-[var(--pm)] bg-[var(--pc)] rounded-full px-2.5 py-1 mt-0.5">
           반복 {repeatCount}회
         </span>
       </div>
 
-      {/* Play */}
+      {/* 스피커 아이콘 (배경 없음) — 패턴 아래 */}
       <button
         type="button"
         onClick={handlePlay}
         aria-label={isPlaying ? '정지' : '예문 듣기'}
         className={[
-          'mt-4 flex items-center gap-2 rounded-full px-5 py-2.5 text-[12px] font-bold tracking-[0.04em] transition-colors cursor-pointer',
-          isPlaying ? 'bg-[var(--pd)] text-[var(--pa)]' : 'bg-[var(--pa)] text-white hover:opacity-90',
+          'mt-2 ml-[2.1rem] p-1 -m-1 transition-colors cursor-pointer',
+          isPlaying ? 'text-[var(--pa)] animate-pulse' : 'text-[var(--pm2)] hover:text-[var(--pa)]',
         ].join(' ')}
       >
-        {isPlaying ? <Square className="w-3.5 h-3.5 fill-current" /> : <Volume2 className="w-3.5 h-3.5" />}
-        {isPlaying ? '정지' : 'Play'}
+        <Volume2 className="w-[18px] h-[18px]" strokeWidth={1.8} />
       </button>
 
       {/* 예문 5개 (항상 표시) */}
-      <div className="mt-5 space-y-3">
+      <div className="mt-3 ml-[2.1rem] space-y-0.5">
         {examples.map((ex, i) => {
           const isActive = currentIdx === i
           const following = isActive && phase === 'pause'
@@ -157,29 +172,29 @@ export function PatternPracticeCard({
             <div
               key={i}
               className={[
-                'rounded-xl px-3.5 py-3 border transition-colors duration-300',
+                'rounded-lg px-2.5 py-1.5 border transition-colors duration-300',
                 isActive ? 'border-[var(--pa)] bg-[var(--pal)]' : 'border-transparent',
               ].join(' ')}
             >
-              <div className="flex gap-3 items-start">
+              <div className="flex gap-2.5 items-start">
                 <span className={[
-                  'shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold transition-colors mt-0.5',
+                  'shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors mt-0.5',
                   isActive ? 'bg-[var(--pa)] text-white' : 'bg-[var(--pc)] text-[var(--pa)]',
                 ].join(' ')}>
                   {i + 1}
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-[0.92rem] font-medium text-[var(--pt)] leading-relaxed">{ex.en}</p>
+                    <p className="text-[0.82rem] font-medium text-[var(--pt)] leading-snug">{ex.en}</p>
                     {ex.domain && (
                       <span className="text-[8px] font-bold text-[var(--pm)] bg-[var(--pd)] rounded px-1.5 py-0.5">{ex.domain}</span>
                     )}
                   </div>
                   {showTranslation && (
-                    <p className="text-[0.74rem] text-[var(--pm)] mt-0.5 leading-relaxed">{ex.ko}</p>
+                    <p className="text-[0.7rem] text-[var(--pm)] mt-0.5 leading-snug">{ex.ko}</p>
                   )}
                   {following && (
-                    <p className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-bold text-[var(--pa)] animate-pulse">
+                    <p className="mt-1 inline-flex items-center gap-1.5 text-[10px] font-bold text-[var(--pa)] animate-pulse">
                       <span className="w-1.5 h-1.5 rounded-full bg-[var(--pa)]" />
                       따라 읽어보세요
                     </p>
@@ -193,7 +208,7 @@ export function PatternPracticeCard({
 
       {/* 완료 피드백 */}
       {phase === 'done' && feedback && (
-        <div className="mt-4 flex items-center gap-2 text-[var(--pa)]">
+        <div className="mt-3 ml-[2.1rem] flex items-center gap-2 text-[var(--pa)]">
           <Check className="w-4 h-4" strokeWidth={2.5} />
           <span className="text-[12px] font-bold">{feedback}</span>
         </div>
