@@ -1,8 +1,15 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { getPreferences, RATE_MAP } from '@/lib/settings/preferences'
+import { getPreferences, RATE_MAP, type VoiceKey } from '@/lib/settings/preferences'
 import { ttsProvider, getPitchForKey } from '@/lib/tts'
+
+type SpeakOpts = {
+  /** 기본 음성 (스토리 내레이터 등). 없으면 사용자 설정 음성 */
+  voiceKey?: VoiceKey
+  /** 세그먼트별 음성 (texts와 1:1) — 화자 구분용 */
+  voiceKeys?: VoiceKey[]
+}
 
 export function useSpeech() {
   const [isSpeaking, setIsSpeaking] = useState(false)
@@ -11,9 +18,10 @@ export function useSpeech() {
   const speakTexts = useCallback((
     texts:     string[],
     audioUrls?: (string | null | undefined)[],
+    opts?:     SpeakOpts,
   ) => {
     const prefs    = getPreferences()
-    const voiceKey = prefs.voice
+    const voiceKey = opts?.voiceKey ?? prefs.voice
 
     setIsSpeaking(true)
     setCurrentParagraphIdx(0)
@@ -22,6 +30,7 @@ export function useSpeech() {
       texts,
       audioUrls,
       voiceKey,
+      voiceKeys: opts?.voiceKeys,
       rate:   RATE_MAP[prefs.speechRate],
       pitch:  getPitchForKey(voiceKey),
       volume: 1.0,
@@ -33,16 +42,17 @@ export function useSpeech() {
   }, [])
 
   /** 단일 문장 (팝업 번역 읽기) */
-  const speak = useCallback((text: string, audioUrl?: string | null) => {
-    speakTexts([text], audioUrl ? [audioUrl] : undefined)
+  const speak = useCallback((text: string, audioUrl?: string | null, voiceKey?: VoiceKey) => {
+    speakTexts([text], audioUrl ? [audioUrl] : undefined, { voiceKey })
   }, [speakTexts])
 
   /** 전체 스토리 문단 순차 읽기 */
   const speakAll = useCallback((
     texts:     string[],
     audioUrls?: (string | null | undefined)[],
+    opts?:     SpeakOpts,
   ) => {
-    speakTexts(texts, audioUrls)
+    speakTexts(texts, audioUrls, opts)
   }, [speakTexts])
 
   const stop = useCallback(() => {

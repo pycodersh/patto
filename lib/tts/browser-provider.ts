@@ -119,32 +119,36 @@ export class BrowserTTSProvider implements ITTSProvider {
 
   private _doSpeak(
     s: SpeechSynthesis,
-    { texts, voiceKey, rate, pitch, volume, onStart, onEnd, onError }: SpeakOptions,
+    { texts, voiceKey, voiceKeys, rate, volume, onStart, onEnd, onError }: SpeakOptions,
   ) {
-    const voice      = findBestVoice(voiceKey)
-    const lang       = voiceKey.startsWith('uk') ? 'en-GB' : 'en-US'
-    const validTexts = texts.map(t => t.trim()).filter(Boolean)
+    // 세그먼트 단위로 음성을 다르게 줄 수 있으므로 원본 index를 유지한 채 빈 텍스트만 건너뛴다
+    const segments = texts
+      .map((t, i) => ({ text: t.trim(), key: voiceKeys?.[i] ?? voiceKey }))
+      .filter(seg => seg.text.length > 0)
 
-    if (!validTexts.length) { onEnd?.(); return }
+    if (!segments.length) { onEnd?.(); return }
 
     let started = false
     let index   = 0
 
     const next = () => {
-      if (index >= validTexts.length) { onEnd?.(); return }
+      if (index >= segments.length) { onEnd?.(); return }
 
-      const u    = new SpeechSynthesisUtterance(validTexts[index++])
-      u.lang     = lang
+      const seg  = segments[index++]
+      const key  = seg.key
+      const u    = new SpeechSynthesisUtterance(seg.text)
+      u.lang     = key.startsWith('uk') ? 'en-GB' : 'en-US'
       u.rate     = rate
-      u.pitch    = pitch
+      u.pitch    = getPitchForKey(key)
       u.volume   = volume
+      const voice = findBestVoice(key)
       if (voice) u.voice = voice
 
       u.onstart = () => {
         if (!started) { started = true; onStart?.() }
       }
       u.onend = () => {
-        if (index < validTexts.length) {
+        if (index < segments.length) {
           setTimeout(next, PARAGRAPH_PAUSE_MS)
         } else {
           onEnd?.()

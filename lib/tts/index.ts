@@ -13,7 +13,7 @@
 export type { ITTSProvider, SpeakOptions } from './types'
 export { BrowserTTSProvider, findBestVoice, getPitchForKey } from './browser-provider'
 export { PregeneratedTTSProvider } from './pregenerated-provider'
-export { storyParaAudioUrl, EDGE_VOICE_MAP } from './audio-urls'
+export { storyParaAudioUrl, patternExampleAudioUrl, EDGE_VOICE_MAP } from './audio-urls'
 
 import { PregeneratedTTSProvider } from './pregenerated-provider'
 import type { ITTSProvider } from './types'

@@ -1,3 +1,5 @@
+import type { VoiceKey } from '@/lib/settings/preferences'
+
 export type ParagraphMediaType = 'image' | 'video' | 'animation'
 
 export type ParagraphMedia = {
@@ -145,6 +147,8 @@ export type MagazineStory = {
   paragraphs: MagazineParagraph[]   // UI 렌더링 기준
   patterns: MagazinePattern[]       // UI 렌더링 기준
   ambienceId?: AmbienceId           // Web Audio 합성 환경음 ID
+  narratorVoice?: VoiceKey          // 내레이션(설명문) 음성 — 스토리 상황/주인공에 맞춤
+  partnerVoice?: VoiceKey           // 대화 상대 음성 (대화문 화자 구분용, 향후 확장)
   sceneVideo?: SceneVideo           // Scene First 대표 영상
   ambience?: StoryAmbience          // HTML audio 환경음 (→ Web Audio 폴백)
   scenes?: MagazineScene[]          // Scene 단위 구조 (AI 영상 생성 기준)

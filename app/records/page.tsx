@@ -4,6 +4,7 @@ import { BookOpen, Flame, Clock, ArrowRight } from 'lucide-react'
 import { TopNav } from '@/components/TopNav'
 import { CalendarHeatmap } from './CalendarHeatmap'
 import { TodayReview } from './TodayReview'
+import { PracticeSummary } from '@/components/PracticeSummary'
 import { createClient } from '@/lib/supabase/server'
 import { getProgressStats } from '@/queries/progress'
 
@@ -99,6 +100,9 @@ export default async function RecordsPage() {
 
         {/* 1. TODAY'S REVIEW */}
         <TodayReview />
+
+        {/* PATTERN PRACTICE SUMMARY */}
+        <PracticeSummary />
 
         {/* 2. LEARNING CALENDAR */}
         <div className="py-8 border-b border-[var(--pd)]">

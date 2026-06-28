@@ -7,7 +7,10 @@ export interface SpeakOptions {
   texts: string[]
   /** 사전 생성된 오디오 URL 배열 (texts와 1:1 대응, null이면 Browser TTS 폴백) */
   audioUrls?: (string | null | undefined)[]
+  /** 기본 음성 */
   voiceKey: VoiceKey
+  /** 세그먼트별 음성 (texts와 1:1 대응) — 화자/내레이션 구분용. 없으면 voiceKey 사용 */
+  voiceKeys?: VoiceKey[]
   rate: number
   pitch: number
   volume: number

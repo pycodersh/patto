@@ -16,7 +16,7 @@ type StoryPageProps = {
   hasPrev: boolean
   onOpenPicker: () => void
   onOpenPopup: (paragraph: MagazineParagraph) => void
-  speakAll: (texts: string[], audioUrls?: (string | null | undefined)[]) => void
+  speakAll: (texts: string[], audioUrls?: (string | null | undefined)[], opts?: { voiceKey?: import('@/lib/settings/preferences').VoiceKey; voiceKeys?: import('@/lib/settings/preferences').VoiceKey[] }) => void
   stop: () => void
   isSpeaking: boolean
   currentParagraphIdx: number   // 현재 TTS 재생 중인 문단 인덱스 (-1 = 비활성)
@@ -65,11 +65,14 @@ export function StoryPage({
       ? story.slideImages
       : [{ url: story.imageUrl, alt: story.imageAlt }]
 
+  // 내레이션 음성: 스토리 상황/주인공에 맞춘 narratorVoice 우선, 없으면 사용자 설정
+  const narrator = story.narratorVoice ?? prefs.voice
+
   function handleAudio() {
     if (isSpeaking) { stop(); return }
     const texts     = story.paragraphs.map(p => p.english)
-    const audioUrls = story.paragraphs.map(p => storyParaAudioUrl(prefs.voice, story.id, p.id))
-    speakAll(texts, audioUrls)
+    const audioUrls = story.paragraphs.map(p => storyParaAudioUrl(narrator, story.id, p.id))
+    speakAll(texts, audioUrls, { voiceKey: narrator })
   }
 
   return (

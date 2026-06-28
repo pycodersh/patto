@@ -22,7 +22,7 @@ export class PregeneratedTTSProvider implements ITTSProvider {
   }
 
   speak(options: SpeakOptions) {
-    const { texts, audioUrls, voiceKey, rate, pitch, volume, onStart, onEnd, onError } = options
+    const { texts, audioUrls, voiceKey, voiceKeys, rate, pitch, volume, onStart, onEnd, onError } = options
 
     this.stopped = false
     this.browser.stop()
@@ -32,10 +32,10 @@ export class PregeneratedTTSProvider implements ITTSProvider {
     let started = false
     const self  = this
 
-    const browserFallback = (text: string, onDone: () => void) => {
+    const browserFallback = (text: string, segKey: typeof voiceKey, onDone: () => void) => {
       self.browser.speak({
         texts:   [text],
-        voiceKey, rate, pitch, volume,
+        voiceKey: segKey, rate, pitch, volume,
         onStart: !started ? () => { started = true; onStart?.() } : undefined,
         onEnd:   onDone,
         onError,
@@ -49,12 +49,13 @@ export class PregeneratedTTSProvider implements ITTSProvider {
       }
 
       options.onParagraphChange?.(index)   // 문단 시작 직전 호출
-      const url  = audioUrls?.[index] ?? null
-      const text = texts[index++]
+      const url    = audioUrls?.[index] ?? null
+      const segKey = voiceKeys?.[index] ?? voiceKey
+      const text   = texts[index++]
       const onDone = () => { if (!self.stopped) setTimeout(next, PARAGRAPH_PAUSE_MS) }
 
       if (!url) {
-        browserFallback(text, onDone)
+        browserFallback(text, segKey, onDone)
         return
       }
 
@@ -74,13 +75,13 @@ export class PregeneratedTTSProvider implements ITTSProvider {
       audio.onerror = () => {
         // 파일 없거나 네트워크 오류 → Browser TTS 폴백
         activeAudio = null
-        if (!self.stopped) browserFallback(text, onDone)
+        if (!self.stopped) browserFallback(text, segKey, onDone)
       }
 
       audio.play().catch(() => {
         // autoplay 차단 등 → Browser TTS 폴백
         activeAudio = null
-        if (!self.stopped) browserFallback(text, onDone)
+        if (!self.stopped) browserFallback(text, segKey, onDone)
       })
     }
 

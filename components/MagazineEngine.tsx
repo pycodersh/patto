@@ -6,7 +6,6 @@ import { Volume2, X } from 'lucide-react'
 
 import { TopNav, NAV_HEIGHT } from '@/components/TopNav'
 import { PatternsPage } from '@/components/PatternsPage'
-import { PatternPopup } from '@/components/PatternPopup'
 import { StoryPage } from '@/components/StoryPage'
 import { WheelPicker } from '@/components/WheelPicker'
 import { useSpeech } from '@/hooks/useSpeech'
@@ -14,7 +13,7 @@ import { useAmbience } from '@/hooks/useAmbience'
 import { usePreferences } from '@/contexts/PreferencesContext'
 import { storyParaAudioUrl } from '@/lib/tts'
 import type { AmbienceId } from '@/types/magazine'
-import type { MagazineParagraph, MagazinePattern, MagazineStory } from '@/types/magazine'
+import type { MagazineParagraph, MagazineStory } from '@/types/magazine'
 
 type MagazineEngineProps = {
   story: MagazineStory
@@ -31,7 +30,6 @@ export function MagazineEngine({ story, allStories, initialView = 'story' }: Mag
   const [view, setView] = useState<'story' | 'patterns'>(initialView)
   const [showPicker, setShowPicker] = useState(false)
   const [popup, setPopup] = useState<MagazineParagraph | null>(null)
-  const [patternPopup, setPatternPopup] = useState<MagazinePattern | null>(null)
 
   // ── Swipe / drag state ──────────────────────────────────────────────
   const [dragOffset, setDragOffset] = useState(0)
@@ -236,7 +234,7 @@ export function MagazineEngine({ story, allStories, initialView = 'story' }: Mag
             onNext={goNext}
             hasNext={!isLast}
             onOpenPicker={() => setShowPicker(true)}
-            onOpenPattern={(p) => { stop(); setPatternPopup(p) }}
+            onOpenPattern={(p) => { stop(); router.push(`/stories/${story.id}/patterns/${p.id}`) }}
           />
         </div>
       </div>
@@ -278,7 +276,11 @@ export function MagazineEngine({ story, allStories, initialView = 'story' }: Mag
                 <button
                   aria-label={isSpeaking ? '정지' : '읽기'}
                   className={`p-1.5 rounded-full transition-colors cursor-pointer ${isSpeaking ? 'bg-[var(--pd)] text-[var(--pa)]' : 'text-[var(--pm2)] hover:bg-[var(--pd)] hover:text-[var(--pa)]'}`}
-                  onClick={() => isSpeaking ? stop() : speak(popup.english, storyParaAudioUrl(prefs.voice, story.id, popup.id))}
+                  onClick={() => {
+                    if (isSpeaking) { stop(); return }
+                    const v = story.narratorVoice ?? prefs.voice
+                    speak(popup.english, storyParaAudioUrl(v, story.id, popup.id), v)
+                  }}
                   type="button"
                 >
                   <Volume2 className="w-3.5 h-3.5" />
@@ -313,17 +315,6 @@ export function MagazineEngine({ story, allStories, initialView = 'story' }: Mag
             )}
           </div>
         </div>
-      )}
-
-      {/* Pattern popup — outside rail */}
-      {patternPopup && (
-        <PatternPopup
-          pattern={patternPopup}
-          onClose={() => setPatternPopup(null)}
-          speak={speak}
-          stop={stop}
-          isSpeaking={isSpeaking}
-        />
       )}
 
       {/* Wheel picker */}

@@ -23,3 +23,19 @@ export function storyParaAudioUrl(
   if (!base) return null
   return `${base}/storage/v1/object/public/audio/${audioFilePath(voiceKey, storyId, paraId)}`
 }
+
+/** Pattern 예문 오디오 파일 경로 (bucket: audio) — 향후 사전 생성 음성 DB화 */
+export function patternExampleFilePath(voiceKey: VoiceKey, patternId: string, index: number): string {
+  return `pattern-${patternId}-ex${index}-${voiceKey}.mp3`
+}
+
+/** Pattern 예문 재생용 공개 URL (파일 없으면 Browser TTS 폴백) */
+export function patternExampleAudioUrl(
+  voiceKey: VoiceKey,
+  patternId: string,
+  index: number,
+): string | null {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!base) return null
+  return `${base}/storage/v1/object/public/audio/${patternExampleFilePath(voiceKey, patternId, index)}`
+}
