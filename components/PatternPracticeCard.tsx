@@ -41,17 +41,23 @@ export function PatternPracticeCard({
   const runningRef = useRef(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const startedAtRef = useRef(0)
+  const playingIdxRef = useRef(0)  // 현재 읽는 예문 index
+  const pausedAtRef = useRef(0)    // 멈춘 위치 — 다시 누르면 여기서 재개
 
   const clearTimer = () => {
     if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null }
   }
 
   const stop = useCallback(() => {
+    // 재생 중에 멈췄으면 위치를 기억하고, 그 예문 하이라이트를 유지
+    if (runningRef.current) {
+      pausedAtRef.current = playingIdxRef.current
+      setCurrentIdx(playingIdxRef.current)
+    }
     runningRef.current = false
     clearTimer()
     ttsProvider.stop()
     setPhase('idle')
-    setCurrentIdx(-1)
   }, [])
 
   // 다른 카드가 활성화되면(=active=false) 이 카드는 정지
@@ -68,11 +74,13 @@ export function PatternPracticeCard({
     setFeedback(`반복 ${rec.repeatCount}회 완료`)
     setPhase('done')
     setCurrentIdx(-1)
+    pausedAtRef.current = 0  // 끝까지 읽었으면 다음엔 처음부터
     onFinished?.()
   }, [pattern.id, pattern.pattern, storyId, storyTitle, onFinished])
 
   const playFrom = useCallback((i: number) => {
     if (!runningRef.current) return
+    playingIdxRef.current = i
     setCurrentIdx(i)
     setPhase('speaking')
 
@@ -102,25 +110,25 @@ export function PatternPracticeCard({
     })
   }, [examples, finish, pattern.id, prefs.speechRate, voice])
 
-  const startPlayback = useCallback(() => {
+  const startPlayback = useCallback((from: number) => {
     setFeedback(null)
     runningRef.current = true
     startedAtRef.current = Date.now()
-    playFrom(0)
+    playFrom(from)
   }, [playFrom])
 
-  // "전체 듣기" 자동 시작 — autoPlayKey가 바뀌고 이 카드가 active일 때
+  // "전체 듣기" 자동 시작 — autoPlayKey가 바뀌고 이 카드가 active일 때 (항상 처음부터)
   const seenAutoRef = useRef(autoPlayKey)
   useEffect(() => {
     if (autoPlayKey === seenAutoRef.current) return
     seenAutoRef.current = autoPlayKey
-    if (active) startPlayback()
+    if (active) { pausedAtRef.current = 0; startPlayback(0) }
   }, [autoPlayKey, active, startPlayback])
 
   const handlePlay = () => {
     if (phase === 'speaking' || phase === 'pause') { stop(); return }
     onRequestPlay()
-    startPlayback()
+    startPlayback(pausedAtRef.current)  // 멈춘 위치에서 재개
   }
 
   const isPlaying = phase === 'speaking' || phase === 'pause'
