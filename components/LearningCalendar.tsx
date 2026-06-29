@@ -30,10 +30,10 @@ function buildMonth(year: number, month: number, counts: Record<string, number>)
 
 function cellStyle(day: DayData | null): React.CSSProperties {
   if (!day || day.future) return { background: 'transparent' }
-  if (day.count === 0) return { background: 'var(--ph0)' }
-  if (day.count <= 2) return { background: 'var(--ph1)' }
-  if (day.count <= 5) return { background: 'var(--ph2)' }
-  return { background: 'var(--ph3)' }
+  if (day.count === 0) return { background: 'transparent', border: '1px solid var(--pd)' } // 학습 없음 = 빈칸
+  if (day.count <= 2) return { background: 'var(--ph1)' }  // 1~2회 연한
+  if (day.count <= 5) return { background: 'var(--ph2)' }  // 3~5회 중간
+  return { background: 'var(--ph3)' }                       // 6회+ 진한
 }
 
 // 날짜 숫자 색상 — 칸 색이 진할수록 밝게
@@ -123,7 +123,8 @@ export function LearningCalendar() {
       {/* Legend */}
       <div className="flex items-center gap-2 mt-4 justify-end">
         <span className="text-[9px] text-[var(--pm2)]">Less</span>
-        {(['var(--ph0)', 'var(--ph1)', 'var(--ph2)', 'var(--ph3)'] as const).map((c, i) => (
+        <div className="w-3 h-3 rounded-sm" style={{ background: 'transparent', border: '1px solid var(--pd)' }} />
+        {(['var(--ph1)', 'var(--ph2)', 'var(--ph3)'] as const).map((c, i) => (
           <div key={i} className="w-3 h-3 rounded-sm" style={{ background: c }} />
         ))}
         <span className="text-[9px] text-[var(--pm2)]">More</span>

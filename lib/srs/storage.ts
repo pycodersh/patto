@@ -17,6 +17,7 @@ export type SrsItemType = 'story' | 'pattern'
 export type LearningRecord = {
   itemId: string
   itemType: SrsItemType
+  storyId?: number                // 패턴이 속한 스토리 (pattern 레코드)
   title: string
   intervalDays: number
   nextReviewAt: string            // YYYY-MM-DD
@@ -107,11 +108,12 @@ export function getRecord(itemType: SrsItemType, itemId: string): LearningRecord
   return readAll()[keyOf(itemType, itemId)] ?? null
 }
 
-/** 오늘까지 복습 예정인 항목 (nextReviewAt <= 오늘), 빠른 순 */
+// 복습은 Pattern 중심 — 큐/카운트는 pattern 레코드만 대상
+/** 오늘까지 복습 예정인 패턴 (nextReviewAt <= 오늘). 이미 오늘 복습한 항목은 nextReviewAt이 미래로 이동해 자동 제외 */
 export function getDueItems(): LearningRecord[] {
   const t = todayStr()
   return getAllRecords()
-    .filter((r) => r.nextReviewAt <= t)
+    .filter((r) => r.itemType === 'pattern' && r.nextReviewAt <= t)
     .sort((a, b) => a.nextReviewAt.localeCompare(b.nextReviewAt))
 }
 
@@ -123,13 +125,24 @@ export function getDueCount(): number {
 /** 오늘 예정 (nextReviewAt === 오늘) */
 export function getTodayDueCount(): number {
   const t = todayStr()
-  return getAllRecords().filter((r) => r.nextReviewAt === t).length
+  return getAllRecords().filter((r) => r.itemType === 'pattern' && r.nextReviewAt === t).length
 }
 
 /** 밀린 복습 (nextReviewAt < 오늘) */
 export function getOverdueCount(): number {
   const t = todayStr()
-  return getAllRecords().filter((r) => r.nextReviewAt < t).length
+  return getAllRecords().filter((r) => r.itemType === 'pattern' && r.nextReviewAt < t).length
+}
+
+/** 스토리별 연습 완료 패턴 수 (진행 중 스토리 판단용) */
+export function getPracticedPatternCountByStory(): Record<number, number> {
+  const out: Record<number, number> = {}
+  for (const r of getAllRecords()) {
+    if (r.itemType !== 'pattern') continue
+    const sid = r.storyId ?? Number((r.itemId.match(/^pt(\d+)-/) ?? [])[1])
+    if (sid) out[sid] = (out[sid] ?? 0) + 1
+  }
+  return out
 }
 
 // ── 통계 ────────────────────────────────────────────────────────────────────
@@ -256,11 +269,12 @@ export function recordPatternPractice(
   const now = new Date().toISOString()
 
   const rec = ensureRecord(map, patternId, 'pattern', patternTitle)
+  rec.storyId = storyId
   rec.repeatCount += 1
   rec.lastPracticedAt = now
   rec.totalPracticeTime += Math.max(0, durationMs)
 
-  // 소속 스토리도 복습 대상으로 등록 (첫 연습 시 생성)
+  // 소속 스토리도 학습 기록으로 등록 (학습한 스토리 카운트용 — 복습 큐에는 미포함)
   ensureRecord(map, String(storyId), 'story', storyTitle)
 
   writeAll(map)

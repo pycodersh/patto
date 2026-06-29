@@ -10,9 +10,10 @@ import { LearningCalendar } from '@/components/LearningCalendar'
 import { magazineStories } from '@/data/magazine-stories'
 import { getBookmarks, type BookmarkedPattern } from '@/lib/bookmarks/storage'
 import {
-  getAllRecords, getDueCount, getTodayDueCount, getOverdueCount,
+  getDueCount, getTodayDueCount, getOverdueCount,
   getLearnedStoryCount, getLearnedPatternCount, getTotalRepeatCount, getTotalPracticeMs,
   getStudiedTodayStoryCount, getPracticedTodayCount, getReviewedTodayCount,
+  getPracticedPatternCountByStory,
 } from '@/lib/srs/storage'
 
 // PATTO 전체 커리큘럼 규모 (커리큘럼 기준 진행률)
@@ -39,7 +40,21 @@ type Stats = {
   totalRepeats: number
   totalPracticeMs: number
   bookmarks: BookmarkedPattern[]
-  nextStoryId: number
+  ctaHref: string
+  ctaLabel: string
+}
+
+// 오늘 할 일 우선순위: 1.밀린 복습 2.오늘 복습 3.진행 중 Story 남은 Pattern 4.다음 Story
+function computeCta(dueNow: number): { href: string; label: string } {
+  if (dueNow > 0) return { href: '/review', label: '복습 시작하기' }
+  const practiced = getPracticedPatternCountByStory()
+  const inProgress = magazineStories.find((st) => {
+    const c = practiced[st.id] ?? 0
+    return c > 0 && c < st.patterns.length
+  })
+  if (inProgress) return { href: `/stories/${inProgress.id}?v=p`, label: '이어서 학습하기' }
+  const newStory = magazineStories.find((st) => !(practiced[st.id] > 0)) ?? magazineStories[0]
+  return { href: `/stories/${newStory.id}`, label: '오늘 학습 시작하기' }
 }
 
 function fmtTime(ms: number): string {
@@ -54,15 +69,13 @@ export default function ProgressPage() {
   const [s, setS] = useState<Stats | null>(null)
 
   useEffect(() => {
-    const learnedStoryIds = new Set(
-      getAllRecords().filter((r) => r.itemType === 'story').map((r) => r.itemId),
-    )
-    const nextStory = magazineStories.find((st) => !learnedStoryIds.has(String(st.id))) ?? magazineStories[0]
+    const dueNow = getDueCount()
+    const cta = computeCta(dueNow)
     setS({
       studiedTodayStories: getStudiedTodayStoryCount(),
       practicedTodayPatterns: getPracticedTodayCount(),
       reviewedToday: getReviewedTodayCount(),
-      dueNow: getDueCount(),
+      dueNow,
       todayDue: getTodayDueCount(),
       overdue: getOverdueCount(),
       learnedStories: getLearnedStoryCount(),
@@ -70,19 +83,18 @@ export default function ProgressPage() {
       totalRepeats: getTotalRepeatCount(),
       totalPracticeMs: getTotalPracticeMs(),
       bookmarks: getBookmarks(),
-      nextStoryId: nextStory.id,
+      ctaHref: cta.href,
+      ctaLabel: cta.label,
     })
   }, [])
 
   const v = s ?? {
     studiedTodayStories: 0, practicedTodayPatterns: 0, reviewedToday: 0, dueNow: 0,
     todayDue: 0, overdue: 0, learnedStories: 0, learnedPatterns: 0, totalRepeats: 0,
-    totalPracticeMs: 0, bookmarks: [], nextStoryId: 1,
+    totalPracticeMs: 0, bookmarks: [], ctaHref: '/stories/1', ctaLabel: '오늘 학습 시작하기',
   }
 
   const reviewTarget = v.reviewedToday + v.dueNow
-  const hasDue = v.dueNow > 0
-  const ctaHref = hasDue ? '/review' : `/stories/${v.nextStoryId}`
 
   const storyPct = v.learnedStories / CURRICULUM.stories
   const patternPct = v.learnedPatterns / CURRICULUM.patterns
@@ -111,10 +123,10 @@ export default function ProgressPage() {
 
           <button
             type="button"
-            onClick={() => router.push(ctaHref)}
+            onClick={() => router.push(v.ctaHref)}
             className="mt-6 w-full rounded-2xl bg-[var(--pa)] text-white py-4 text-[14px] font-bold tracking-[0.03em] hover:opacity-90 transition-opacity cursor-pointer flex items-center justify-center gap-2"
           >
-            {hasDue ? '복습 시작하기' : '오늘 학습 시작하기'}
+            {v.ctaLabel}
             <ArrowRight className="w-4 h-4" strokeWidth={2.4} />
           </button>
         </section>
@@ -139,6 +151,19 @@ export default function ProgressPage() {
               </div>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => router.push('/review')}
+            disabled={v.dueNow === 0}
+            className={`mt-5 w-full rounded-2xl py-3 text-[13px] font-bold tracking-[0.03em] flex items-center justify-center gap-1.5 transition-colors ${
+              v.dueNow > 0
+                ? 'bg-[var(--pa)] text-white hover:opacity-90 cursor-pointer'
+                : 'bg-[var(--pc)] text-[var(--pm2)] cursor-not-allowed'
+            }`}
+          >
+            {v.dueNow > 0 ? '복습하기' : '오늘 복습 완료'}
+            {v.dueNow > 0 && <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.4} />}
+          </button>
         </section>
 
         {/* 5. PATTO Journey */}
