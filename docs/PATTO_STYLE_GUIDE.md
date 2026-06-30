@@ -20,12 +20,21 @@
 
 ---
 
-## ★ Gold Standard 100 (정식 커리큘럼)
+## ★ Gold Standard 200 (정식 커리큘럼)
 
-현재 확정된 **Pattern 100 · Example 500 · Story 20**이 PATTO의 첫 공식 커리큘럼이자 Gold Standard다.
-앞으로 만들 500 / 1000 / 4000개의 모든 콘텐츠는 이 100개를 기준으로 확장한다.
+현재 확정된 **Pattern 200 · Example 1,000 · Story 40**이 PATTO의 공식 커리큘럼이자 Gold Standard다.
+1~100은 핵심 구조(Level 1~5), 101~200은 **실제 생활 상황 확장**이다.
+앞으로 만들 500 / 1000 / 4000개의 모든 콘텐츠는 이 200개를 기준으로 확장한다.
 
-목표 수준: **"이 100개의 Pattern만 완벽하게 반복하면 영어의 핵심 구조를 체계적으로 익힌다."**
+목표 수준: **"이 200개의 Pattern만 완벽하게 반복하면 영어의 핵심 구조와 일상 상황을 모두 자동화한다."**
+
+> **Gold Standard 200 — Version 1.0 확정 (2026-06-30)**
+> Phase 3에서 기존 100을 **수정 없이 유지**하고 Pattern 101~200(Story 21~40)을 추가했다.
+> 추가 원칙(스타일은 100과 동일하게 유지):
+> - 의미·표현·용법·학습 목적 모두 기존 100과 **중복 0**.
+> - **부족했던 생활 상황을 적극 확장** — 쇼핑·온라인주문·카페/식당·병원·약국·은행·공항·호텔·택시·운전·날씨·운동·취미·집안일·육아·학교·전화·회의/발표·협상·감정/반응.
+> - 100보다 조금 더 길고 자연스럽지만 **난이도가 급격히 오르지 않도록** 설계(이어서 학습 가능).
+> - 각 Pattern의 Example 5개는 생활/회사/여행/인간관계/돌발을 **하나씩** 커버 → 1,000개 전체 200/200/200/200/200 완전 균형.
 
 ### 난이도 5 Level 구조 (사용자가 "Level을 마스터한다"고 느끼도록)
 
@@ -41,6 +50,27 @@
 - Level 5의 **Conversation Chunk**는 통째로 외워 바로 쓰는 회화 덩어리다
   (예: "It's up to you", "Sounds good", "I'm on it", "On second thought").
   슬롯이 있으면 패턴화하고(`Sounds like ~`), 고정 표현이면 그대로 둔다(`I owe you one`).
+
+### 생활 상황 확장 블록 (Pattern 101~200 · Story 21~40)
+
+100의 핵심 구조 위에, **실제로 부딪히는 상황별 표현**을 얹는다. 난이도는 100을 이어서 자연스럽게.
+
+| Story | 상황 | 대표 Pattern |
+|---|---|---|
+| 21~22 | 쇼핑 · 온라인 주문 | Do you have this in ~? / Can I try ~ on? / Can I get ~? / ~ hasn't arrived yet |
+| 23 | 카페 · 식당 주문 | I'll have ~ / What do you recommend? / I'm allergic to ~ / Can we get the check? |
+| 24~25 | 병원 · 약국 | I have a ~ / It hurts when ~ / Do you have anything for ~? / I'm coming down with ~ |
+| 26~27 | 은행 · 공항 | I'm here to ~ / Is there a fee for ~? / I'm checking in for ~ / What time does ~? |
+| 28~29 | 호텔 · 택시/길 | The ~ isn't working / Is there ~ nearby? / Which way is ~? / Keep the change |
+| 30~31 | 운전 · 날씨/스몰토크 | We're stuck in ~ / Watch out for ~! / It looks like it's going to ~ / What's ~ like? |
+| 32~33 | 운동 · 취미 | I work out ~ / I've been meaning to ~ / I'm really into ~ / I've always wanted to ~ |
+| 34~35 | 집안일 · 육아 | It's your turn to ~ / Don't forget to ~ / It's time to ~ / Good job ~ing |
+| 36~37 | 학교 · 전화 | I'm majoring in ~ / ~ is due ~ / Can I speak to ~? / You're breaking up |
+| 38~39 | 회의/발표 · 협상 | Let's get started ~ / To sum up ~ / Would it be possible to ~? / Let's meet halfway |
+| 40 | 감정 · 원어민 반응 | I can't believe ~ / I'm so proud of ~ / It drives me crazy ~ / That's a relief |
+
+- 생활 단어(receipt, refund, charger, leg day, boarding pass, prescription …)를 Example 안에서 자연스럽게 반복 학습한다.
+- 슬롯형은 패턴화(`Do you have this in ~?`), 고정 표현은 그대로(`Keep the change`, `That's a relief`).
 
 ### 새 Pattern 선정 이유 (51~100)
 - 기존 50과 **기능이 겹치지 않을 것** (중복 금지). 요청·질문·의견 등 기능 단위로 구분.
