@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Check, ArrowRight, BookOpen, Layers, RotateCcw } from 'lucide-react'
+import { Check, ChevronRight, BookOpen, Layers, RotateCcw } from 'lucide-react'
 
 import { TopNav } from '@/components/TopNav'
 import { LearningCalendar } from '@/components/LearningCalendar'
@@ -35,16 +35,13 @@ type Stats = {
 }
 
 function computeCtaHref(dueNow: number): string {
-  // 1. Review due → go to review
   if (dueNow > 0) return '/review'
   const practiced = getPracticedPatternCountByStory()
-  // 2. In-progress story with patterns → continue patterns
   const inProgress = magazineStories.find((st) => {
     const c = practiced[st.id] ?? 0
     return c > 0 && c < st.patterns.length
   })
   if (inProgress) return `/stories/${inProgress.id}?v=p`
-  // 3. First story not yet started
   const newStory = magazineStories.find((st) => !(practiced[st.id] > 0)) ?? magazineStories[0]
   return `/stories/${newStory.id}`
 }
@@ -56,11 +53,50 @@ function fmtTime(ms: number): string {
   return `${h < 10 ? h.toFixed(1) : Math.round(h)}h`
 }
 
-// ── Section label — all sections share identical style ────────────────────────
+// ── Action link — shared by all section headers ───────────────────────────────
+// Apple HIG–style: small burgundy text + thin chevron, never looks like a button
+function ActionLink({ label, href, onClick }: {
+  label: string
+  href?: string
+  onClick?: () => void
+}) {
+  const style: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 2,
+    fontSize: 11,
+    fontWeight: 600,
+    color: 'var(--pa)',
+    textDecoration: 'none',
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    cursor: 'pointer',
+    letterSpacing: '0.01em',
+    lineHeight: 1,
+    opacity: 0.9,
+  }
+  if (href) {
+    return (
+      <Link href={href} style={style}>
+        {label}
+        <ChevronRight style={{ width: 10, height: 10, marginLeft: 1 }} strokeWidth={2.2} />
+      </Link>
+    )
+  }
+  return (
+    <button type="button" onClick={onClick} style={style}>
+      {label}
+      <ChevronRight style={{ width: 10, height: 10, marginLeft: 1 }} strokeWidth={2.2} />
+    </button>
+  )
+}
+
+// ── Section label — short burgundy underline, optional right action link ──────
 function SectionLabel({ label, action }: { label: string; action?: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div style={{ marginBottom: 18 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
         <p style={{
           fontSize: 11,
           fontWeight: 800,
@@ -73,12 +109,13 @@ function SectionLabel({ label, action }: { label: string; action?: React.ReactNo
         </p>
         {action}
       </div>
-      <div style={{ height: 1, background: 'var(--pd)', marginTop: 10 }} />
+      {/* Short burgundy decorative rule — replaces full-width gray divider */}
+      <div style={{ height: 2, background: 'var(--pa)', width: 48, marginTop: 8, borderRadius: 1, opacity: 0.55 }} />
     </div>
   )
 }
 
-// ── Stat cell — centered number + label, shared by Review and Your Journey ────
+// ── Stat cell — centered, shared by Review and Your Journey ───────────────────
 function StatCell({ value, label, border }: { value: React.ReactNode; label: string; border?: boolean }) {
   return (
     <div style={{
@@ -190,44 +227,24 @@ export default function ProgressPage() {
 
         {/* ── TODAY'S MISSION ───────────────────────────────────────────── */}
         <section style={{ marginBottom: 36 }}>
-          <SectionLabel label="Today's Mission" />
+          <SectionLabel
+            label="Today's Mission"
+            action={
+              <ActionLink
+                label="이어서 학습"
+                onClick={() => router.push(v.ctaHref)}
+              />
+            }
+          />
           <MissionRow icon={BookOpen}  label="Story 학습"   value={v.studiedTodayStories}    total={DAILY.story} />
           <MissionRow icon={Layers}    label="Pattern 학습" value={v.practicedTodayPatterns} total={DAILY.pattern} />
           <MissionRow icon={RotateCcw} label="복습하기"     value={v.reviewedToday}          total={reviewTarget} last />
-
-          <button
-            type="button"
-            onClick={() => router.push(v.ctaHref)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              width: '100%',
-              padding: '13px 18px',
-              background: 'transparent',
-              color: 'var(--pa)',
-              border: '1px solid var(--pa)',
-              borderRadius: 3,
-              cursor: 'pointer',
-              marginTop: 20,
-              opacity: 0.85,
-            }}
-          >
-            <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: '0.04em' }}>
-              학습 이어하기
-            </span>
-            <ArrowRight style={{ width: 14, height: 14, flexShrink: 0 }} strokeWidth={2} />
-          </button>
         </section>
 
         {/* ── REVIEW ────────────────────────────────────────────────────── */}
         <section style={{ marginBottom: 36 }}>
           <SectionLabel label="Review" />
-          <div style={{
-            display: 'flex',
-            border: '1px solid var(--pd)',
-            borderRadius: 3,
-          }}>
+          <div style={{ display: 'flex', border: '1px solid var(--pd)', borderRadius: 3 }}>
             <StatCell value={v.todayDue} label="오늘 복습" border />
             <StatCell value={v.overdue}  label="밀린 복습" />
           </div>
@@ -241,20 +258,12 @@ export default function ProgressPage() {
         {/* ── YOUR JOURNEY ──────────────────────────────────────────────── */}
         <section style={{ marginBottom: 36 }}>
           <SectionLabel label="Your Journey" />
-
-          {/* 4 stats in one row */}
-          <div style={{
-            display: 'flex',
-            border: '1px solid var(--pd)',
-            borderRadius: 3,
-          }}>
+          <div style={{ display: 'flex', border: '1px solid var(--pd)', borderRadius: 3 }}>
             <StatCell value={v.learnedStories}           label="Stories"  border />
             <StatCell value={v.learnedPatterns}          label="Patterns" border />
             <StatCell value={v.totalRepeats}             label="Repeats"  border />
             <StatCell value={fmtTime(v.totalPracticeMs)} label="Reading"  />
           </div>
-
-          {/* Curriculum progress bar */}
           <div style={{ marginTop: 18 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
               <div style={{ flex: 1, height: 1.5, background: 'var(--pd)', borderRadius: 2, overflow: 'hidden' }}>
@@ -284,14 +293,7 @@ export default function ProgressPage() {
         <section>
           <SectionLabel
             label="My Patterns"
-            action={
-              <Link
-                href="/records/patterns"
-                style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--pa)', fontWeight: 600, textDecoration: 'none' }}
-              >
-                전체 보기 <ArrowRight style={{ width: 11, height: 11 }} strokeWidth={2} />
-              </Link>
-            }
+            action={<ActionLink label="전체 보기" href="/records/patterns" />}
           />
 
           {v.bookmarks.length === 0 ? (
