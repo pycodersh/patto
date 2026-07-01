@@ -15,6 +15,7 @@ import { storyParaAudioUrl } from '@/lib/tts'
 import type { AmbienceId } from '@/types/magazine'
 import type { MagazineParagraph, MagazineStory } from '@/types/magazine'
 import { resolveTranslation } from '@/lib/i18n/translation'
+import { saveLastPosition } from '@/lib/last-position'
 
 type MagazineEngineProps = {
   story: MagazineStory
@@ -29,6 +30,9 @@ export function MagazineEngine({ story, allStories, initialView = 'story' }: Mag
   const { play: playAmbience, stop: stopAmbience } = useAmbience()
 
   const [view, setView] = useState<'story' | 'patterns'>(initialView)
+
+  // 위치 저장 — Continue Learning이 여기로 돌아올 수 있도록
+  useEffect(() => { saveLastPosition(story.id, view) }, [story.id, view])
   const [showPicker, setShowPicker] = useState(false)
   const [popup, setPopup] = useState<MagazineParagraph | null>(null)
 

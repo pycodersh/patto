@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight } from 'lucide-react'
 import { TopNav, NAV_HEIGHT } from '@/components/TopNav'
-import { getDueCount, getAllRecords } from '@/lib/srs/storage'
+import { getAllRecords } from '@/lib/srs/storage'
+import { getLastPosition } from '@/lib/last-position'
 import { magazineStories } from '@/data/magazine-stories'
 import { EDITOR_NOTES, type LangMap } from '@/data/editor-notes'
 import { getNextUnreadId } from '@/lib/editor/storage'
@@ -214,13 +215,17 @@ export default function HomePage() {
   useEffect(() => {
     injectKenBurns()
 
-    // Next story to read
-    const due = getDueCount()
-    const learnedStoryIds = new Set(
-      getAllRecords().filter(r => r.itemType === 'story').map(r => r.itemId),
-    )
-    const nextStory = magazineStories.find(s => !learnedStoryIds.has(String(s.id))) ?? magazineStories[0]
-    setFirstHref(due > 0 ? '/review' : `/stories/${nextStory.id}`)
+    // Continue Learning — 마지막 위치로, 없으면 다음 미학습 스토리로
+    const lastPos = getLastPosition()
+    if (lastPos) {
+      setFirstHref(`/stories/${lastPos.storyId}${lastPos.view === 'patterns' ? '?v=p' : ''}`)
+    } else {
+      const learnedStoryIds = new Set(
+        getAllRecords().filter(r => r.itemType === 'story').map(r => r.itemId),
+      )
+      const nextStory = magazineStories.find(s => !learnedStoryIds.has(String(s.id))) ?? magazineStories[0]
+      setFirstHref(`/stories/${nextStory.id}`)
+    }
 
     // Next unread editor's note
     const nextId = getNextUnreadId(30)
