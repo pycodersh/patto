@@ -364,6 +364,8 @@ export default function HomePage() {
           padding: '60px 20px 32px',
           ...fadeUp(3),
         }}>
+          {/* 우측 정렬 컨테이너 — 두 링크 모두 동일 오른쪽 기준 */}
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end' }}>
 
           {/* Continue Learning — magazine text link */}
           <div
@@ -423,6 +425,7 @@ export default function HomePage() {
             <ArrowRight style={{ width: 13, height: 13, color: 'rgba(255,255,255,0.35)', flexShrink: 0 }} strokeWidth={1.5} />
           </div>
 
+          </div>{/* end 우측 정렬 컨테이너 */}
         </div>
       </div>
     </div>
