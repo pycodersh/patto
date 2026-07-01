@@ -6,7 +6,7 @@ import { ArrowRight } from 'lucide-react'
 import { TopNav, NAV_HEIGHT } from '@/components/TopNav'
 import { getDueCount, getAllRecords } from '@/lib/srs/storage'
 import { magazineStories } from '@/data/magazine-stories'
-import { EDITOR_NOTES } from '@/data/editor-notes'
+import { EDITOR_NOTES, type LangMap } from '@/data/editor-notes'
 import { getNextUnreadId } from '@/lib/editor/storage'
 import { useT } from '@/hooks/useT'
 import { usePreferences } from '@/contexts/PreferencesContext'
@@ -225,7 +225,7 @@ export default function HomePage() {
     // Next unread editor's note
     const nextId = getNextUnreadId(30)
     const note = EDITOR_NOTES.find(n => n.id === nextId) ?? EDITOR_NOTES[0]
-    if (note) setEditorNote({ id: note.id, title: note.title, readTimeSec: note.readTimeSec })
+    if (note) setEditorNote({ id: note.id, title: note.title[prefs.appLang as keyof LangMap<unknown>] ?? note.title.en, readTimeSec: note.readTimeSec })
 
     // Phase cascade for entrance animation
     const timers = [

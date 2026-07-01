@@ -4,9 +4,10 @@ import { use, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Bookmark, Share2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { TopNav, NAV_HEIGHT } from '@/components/TopNav'
-import { EDITOR_NOTES, TOTAL_NOTES } from '@/data/editor-notes'
+import { EDITOR_NOTES, TOTAL_NOTES, type LangMap } from '@/data/editor-notes'
 import { markNoteRead, isNoteRead, getReadCount } from '@/lib/editor/storage'
 import { EditorIllustration } from '@/components/EditorIllustration'
+import { usePreferences } from '@/contexts/PreferencesContext'
 import { useT } from '@/hooks/useT'
 
 function fmtTime(sec: number): string {
@@ -41,6 +42,8 @@ export default function EditorNotePage({ params }: { params: Promise<{ id: strin
 
   const note = EDITOR_NOTES.find(n => n.id === id)
   const t = useT()
+  const { prefs } = usePreferences()
+  const lang = prefs.appLang as keyof LangMap<unknown>
 
   const [readCount,  setReadCount]  = useState(0)
   const [bookmarked, setBookmarked] = useState(false)
@@ -66,6 +69,10 @@ export default function EditorNotePage({ params }: { params: Promise<{ id: strin
   const goPrev = () => { if (prevId) router.push(`/editor/${prevId}`) }
 
   const swipe = useSwipe(goNext, goPrev)
+
+  const title = note ? (note.title[lang] ?? note.title.en) : ''
+  const body = note ? (note.body[lang] ?? note.body.en) : []
+  const otr = note ? (note.oneThingToRemember[lang] ?? note.oneThingToRemember.en) : ''
 
   if (!note) {
     return (
@@ -124,7 +131,7 @@ export default function EditorNotePage({ params }: { params: Promise<{ id: strin
           color: 'var(--pt)',
           margin: '32px 0 8px',
         }}>
-          {note.title}
+          {title}
         </h1>
 
         {/* Illustration */}
@@ -150,7 +157,7 @@ export default function EditorNotePage({ params }: { params: Promise<{ id: strin
           </button>
           <button
             type="button"
-            onClick={() => { if (navigator.share) navigator.share({ title: note.title, text: note.oneThingToRemember }) }}
+            onClick={() => { if (navigator.share) navigator.share({ title, text: otr }) }}
             style={{ background:'none', border:'none', cursor:'pointer', padding:'4px 0', display:'flex', alignItems:'center', gap:5 }}
           >
             <Share2 style={{ width:13, height:13, color:'var(--pm2)' }} strokeWidth={2} />
@@ -160,7 +167,7 @@ export default function EditorNotePage({ params }: { params: Promise<{ id: strin
 
         {/* Body */}
         <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
-          {note.body.map((para, i) => (
+          {body.map((para, i) => (
             <p key={i} style={{
               fontSize: 15.5,
               lineHeight: 1.8,
@@ -193,7 +200,7 @@ export default function EditorNotePage({ params }: { params: Promise<{ id: strin
             color: 'var(--pa)',
             margin: 0,
           }}>
-            {note.oneThingToRemember}
+            {otr}
           </p>
         </div>
 
@@ -218,7 +225,7 @@ export default function EditorNotePage({ params }: { params: Promise<{ id: strin
                   {r.title}
                 </p>
                 <p style={{ margin:0, fontSize:12, lineHeight:1.65, color:'var(--pm)' }}>
-                  {r.brief}
+                  {r.brief[lang] ?? r.brief.en}
                 </p>
               </div>
             ))}
