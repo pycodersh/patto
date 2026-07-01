@@ -22,6 +22,8 @@
   --ph1: #C9799A;
   --ph2: #A6385E;
   --ph3: #8B2246;
+  /* Nav height including iOS safe-area-inset-top (non-zero in viewport-fit:cover PWA mode) */
+  --pnav-h: calc(48px + env(safe-area-inset-top, 0px));
 }
 
 .dark {

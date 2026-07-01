@@ -154,7 +154,15 @@ export default function ProgressPage() {
     <div style={{ height: '100dvh', overflowY: 'auto', background: 'var(--pb)' }}>
       <TopNav />
 
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: `${NAV_HEIGHT + 28}px 22px 100px` }}>
+      <div style={{
+        maxWidth: 480,
+        margin: '0 auto',
+        paddingTop: 'calc(var(--pnav-h) + 28px)',
+        paddingLeft: 24,
+        paddingRight: 24,
+        paddingBottom: 100,
+        boxSizing: 'border-box',
+      }}>
 
         {/* ── Page header ───────────────────────────────────────────────── */}
         <div style={{ marginBottom: 52 }}>

@@ -60,16 +60,20 @@ export function TopNav() {
     <nav
       className="fixed top-0 left-0 right-0 z-40"
       style={{
-        height: NAV_HEIGHT,
+        height: 'var(--pnav-h)',
         background: 'var(--pb)',
         borderBottom: '1px solid var(--pd)',
       }}
     >
-      {/* single row — vertically centred */}
+      {/* single row — sits below safe area, vertically centred in the remaining 48px */}
       <div
         ref={rowRef}
-        className="flex items-center px-3 h-full"
-        style={{ position: 'relative' }}
+        className="flex items-center px-3"
+        style={{
+          position: 'relative',
+          height: NAV_HEIGHT,
+          marginTop: 'env(safe-area-inset-top, 0px)',
+        }}
       >
         {/* All tabs — TODAY acts as brand + home link */}
         <div className="flex items-center gap-4">
