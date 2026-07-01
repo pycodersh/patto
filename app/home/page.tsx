@@ -4,18 +4,19 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight } from 'lucide-react'
 import { TopNav, NAV_HEIGHT } from '@/components/TopNav'
-import { getDueCount, getAllRecords } from '@/lib/srs/storage'
+import {
+  getDueCount,
+  getAllRecords,
+  getStudiedTodayStoryCount,
+  getPracticedTodayCount,
+  getReviewedTodayCount,
+} from '@/lib/srs/storage'
 import { magazineStories } from '@/data/magazine-stories'
 
-// ── Themed cover pairs (이미지 + 쿼트 느낌 매칭) ─────────────────────────────
 type Quote = { en: string; ko: string }
-type CoverTheme = {
-  seeds:  string[]   // picsum.photos seed words
-  quotes: Quote[]
-}
+type CoverTheme = { seeds: string[]; quotes: Quote[] }
 
 const COVER_THEMES: CoverTheme[] = [
-  // ① Rainy / Quiet — 비, 창가, 사색
   {
     seeds: ['rain', 'mist', 'fog', 'overcast', 'drizzle', 'window'],
     quotes: [
@@ -29,7 +30,6 @@ const COVER_THEMES: CoverTheme[] = [
       { en: 'The page is always open.', ko: '페이지는 언제나 열려 있다.' },
     ],
   },
-  // ② Coffee / Morning focus — 커피, 아침, 집중
   {
     seeds: ['coffee', 'espresso', 'latte', 'breakfast', 'journal', 'desk'],
     quotes: [
@@ -43,7 +43,6 @@ const COVER_THEMES: CoverTheme[] = [
       { en: 'Keep the rhythm going.', ko: '리듬을 이어가라.' },
     ],
   },
-  // ③ Forest / Nature — 숲, 자연, 고요
   {
     seeds: ['forest', 'pine', 'meadow', 'fern', 'woodland', 'bloom'],
     quotes: [
@@ -57,7 +56,6 @@ const COVER_THEMES: CoverTheme[] = [
       { en: 'The smallest habit changes everything.', ko: '가장 작은 습관이 모든 걸 바꾼다.' },
     ],
   },
-  // ④ Evening / Cozy — 저녁, 램프, 따뜻함
   {
     seeds: ['candle', 'lamp', 'evening', 'warmglow', 'dusk', 'fireplace'],
     quotes: [
@@ -71,7 +69,6 @@ const COVER_THEMES: CoverTheme[] = [
       { en: 'Read deeply. Speak freely.', ko: '깊이 읽고, 자유롭게 말하라.' },
     ],
   },
-  // ⑤ City / Travel — 도시, 거리, 여행
   {
     seeds: ['street', 'cobblestone', 'alley', 'city', 'bridge', 'urban'],
     quotes: [
@@ -85,7 +82,6 @@ const COVER_THEMES: CoverTheme[] = [
       { en: 'The story continues.', ko: '이야기는 계속된다.' },
     ],
   },
-  // ⑥ Ocean / Peace — 바다, 해변, 평온
   {
     seeds: ['ocean', 'shore', 'horizon', 'harbor', 'beach', 'waves'],
     quotes: [
@@ -99,7 +95,6 @@ const COVER_THEMES: CoverTheme[] = [
       { en: 'Progress sounds like silence at first.', ko: '성장은 처음엔 침묵처럼 들린다.' },
     ],
   },
-  // ⑦ Morning Light — 일출, 여명, 상쾌함
   {
     seeds: ['sunrise', 'dawn', 'morning', 'sunlight', 'daybreak', 'fresh'],
     quotes: [
@@ -113,7 +108,6 @@ const COVER_THEMES: CoverTheme[] = [
       { en: 'Build the habit. The skill will follow.', ko: '습관을 쌓아라. 실력은 따라온다.' },
     ],
   },
-  // ⑧ Library / Reading — 책, 도서관, 독서
   {
     seeds: ['library', 'bookshelf', 'reading', 'book', 'pages', 'study'],
     quotes: [
@@ -130,87 +124,137 @@ const COVER_THEMES: CoverTheme[] = [
 ]
 
 function pickCover(): { imageUrl: string; quote: Quote } {
-  const theme  = COVER_THEMES[Math.floor(Math.random() * COVER_THEMES.length)]
-  const seed   = theme.seeds[Math.floor(Math.random() * theme.seeds.length)]
-  const quote  = theme.quotes[Math.floor(Math.random() * theme.quotes.length)]
-  return {
-    imageUrl: `https://picsum.photos/seed/${seed}/900/600`,
-    quote,
-  }
+  const theme = COVER_THEMES[Math.floor(Math.random() * COVER_THEMES.length)]
+  const seed  = theme.seeds[Math.floor(Math.random() * theme.seeds.length)]
+  const quote = theme.quotes[Math.floor(Math.random() * theme.quotes.length)]
+  return { imageUrl: `https://picsum.photos/seed/${seed}/900/1400`, quote }
 }
 
-// 매거진 발행일 형식: "JUNE 26, 2026"
 function getIssueDateLabel(): string {
   return new Date()
     .toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     .toUpperCase()
 }
 
-function getNotice(reviewCount: number, hasItem: boolean): string {
+function getNotice(reviewCount: number): string {
   if (reviewCount >= 2) return `${reviewCount} reviews are ready.`
   if (reviewCount === 1) return 'One review is waiting.'
-  if (hasItem) return 'A new story is waiting.'
-  return 'Continue where you left off.'
+  return 'A new story is waiting.'
 }
 
-function fade(show: boolean): React.CSSProperties {
-  return { opacity: show ? 1 : 0, transition: 'opacity 0.75s ease-out' }
+// ── Circular Goal Badge ───────────────────────────────────────────────────────
+function GoalCircle({ done, total }: { done: number; total: number }) {
+  const r = 28
+  const circ = 2 * Math.PI * r
+  const pct = total > 0 ? Math.min(done / total, 1) : 0
+  const offset = circ * (1 - pct)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      <p style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.20em', color: 'rgba(255,255,255,0.55)', margin: 0 }}>
+        DAILY GOAL
+      </p>
+      <div style={{ position: 'relative', width: 68, height: 68 }}>
+        <svg width={68} height={68} viewBox="0 0 68 68" style={{ transform: 'rotate(-90deg)' }}>
+          <circle cx={34} cy={34} r={r} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth={3} />
+          <circle
+            cx={34} cy={34} r={r} fill="none"
+            stroke="rgba(255,255,255,0.85)" strokeWidth={3}
+            strokeDasharray={circ}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            style={{ transition: 'stroke-dashoffset 1s ease-out' }}
+          />
+        </svg>
+        <div style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          gap: 0,
+        }}>
+          <span className="font-playfair" style={{ fontSize: 20, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
+            {done}
+          </span>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.55)', lineHeight: 1.2 }}>/ {total}</span>
+        </div>
+      </div>
+      <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.45)', margin: 0, letterSpacing: '0.06em' }}>tasks</p>
+    </div>
+  )
 }
 
-const LEFT_GUTTER  = 14
-const RIGHT_GUTTER = 20
-
-// ── Page ─────────────────────────────────────────────────────────────────────
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const router = useRouter()
 
-  // 세션마다 1회 랜덤 선택 (마운트 시 결정, 새로고침 시 재선택)
   const [{ imageUrl, quote }] = useState(() => pickCover())
   const issueDateLabel = getIssueDateLabel()
 
   const [notice,    setNotice]    = useState('')
   const [firstHref, setFirstHref] = useState('/stories/1')
-  const [showImg,   setShowImg]   = useState(false)
-  const [showQuote, setShowQuote] = useState(false)
-  const [showLine,  setShowLine]  = useState(false)
-  const [showNote,  setShowNote]  = useState(false)
-  const [showBtn,   setShowBtn]   = useState(false)
+  const [dueCount,  setDueCount]  = useState(0)
+  const [goalDone,  setGoalDone]  = useState(0)
+  const [goalTotal, setGoalTotal] = useState(3)
+
+  const [showImg,    setShowImg]    = useState(false)
+  const [showTop,    setShowTop]    = useState(false)
+  const [showQuote,  setShowQuote]  = useState(false)
+  const [showBottom, setShowBottom] = useState(false)
 
   useEffect(() => {
-    // 오늘 복습할 항목이 있으면 ReviewSession으로, 없으면 새 스토리로
     const due = getDueCount()
     const learnedStoryIds = new Set(
       getAllRecords().filter((r) => r.itemType === 'story').map((r) => r.itemId),
     )
     const nextStory = magazineStories.find((s) => !learnedStoryIds.has(String(s.id))) ?? magazineStories[0]
-    setNotice(getNotice(due, true))
+    setNotice(getNotice(due))
     setFirstHref(due > 0 ? '/review' : `/stories/${nextStory.id}`)
+    setDueCount(due)
+
+    // Daily Goal: Story(1) + Pattern(5) + Review(if due)
+    const storyDone   = getStudiedTodayStoryCount()
+    const patternDone = getPracticedTodayCount()
+    const reviewDone  = getReviewedTodayCount()
+    const total       = due > 0 ? 3 : 2
+    let done = 0
+    if (storyDone >= 1)  done++
+    if (patternDone >= 5) done++
+    if (due > 0 && reviewDone >= due) done++
+    setGoalDone(done)
+    setGoalTotal(total)
 
     const timers = [
-      setTimeout(() => setShowImg(true),   60),
-      setTimeout(() => setShowQuote(true), 400),
-      setTimeout(() => setShowLine(true),  620),
-      setTimeout(() => setShowNote(true),  720),
-      setTimeout(() => setShowBtn(true),   880),
+      setTimeout(() => setShowImg(true),    60),
+      setTimeout(() => setShowTop(true),   350),
+      setTimeout(() => setShowQuote(true), 600),
+      setTimeout(() => setShowBottom(true), 850),
     ]
     return () => timers.forEach(clearTimeout)
   }, [])
 
+  const fadeUp = (show: boolean): React.CSSProperties => ({
+    opacity: show ? 1 : 0,
+    transform: show ? 'translateY(0)' : 'translateY(10px)',
+    transition: 'opacity 0.65s ease-out, transform 0.65s ease-out',
+  })
+
   return (
-    <div style={{ minHeight: '100dvh', background: 'var(--pb)' }}>
+    <div style={{ minHeight: '100dvh', background: '#111' }}>
       <TopNav />
 
-      {/* ── Cover Image — full-bleed ──────────────────────────────────── */}
+      {/* ── Full-bleed Hero (전체화면) ─────────────────────────────────── */}
       <div
         style={{
           position: 'relative',
           width: '100%',
-          height: '45vh',
+          height: `calc(100dvh - ${NAV_HEIGHT}px)`,
           marginTop: NAV_HEIGHT,
           overflow: 'hidden',
-          ...fade(showImg),
+          opacity: showImg ? 1 : 0,
+          transition: 'opacity 1.1s ease-out',
         }}
       >
+        {/* Cover image */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageUrl}
@@ -219,188 +263,216 @@ export default function HomePage() {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            objectPosition: 'center',
+            objectPosition: 'center 30%',
             display: 'block',
           }}
           onError={(e) => {
-            // fallback: coffee seed as safe default
             const img = e.currentTarget
-            if (!img.src.includes('coffee')) {
-              img.src = 'https://picsum.photos/seed/coffee/900/600'
-            }
+            if (!img.src.includes('coffee')) img.src = 'https://picsum.photos/seed/coffee/900/1400'
           }}
         />
 
-        {/* 하단 그라디언트 */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 'auto 0 0 0',
-            height: '50%',
-            background: 'linear-gradient(to bottom, transparent, var(--pb))',
-            pointerEvents: 'none',
-          }}
-        />
+        {/* 얇은 전체 오버레이 */}
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', pointerEvents: 'none' }} />
 
-        {/* 우측 미세 어둠 — 로고 가독성 */}
+        {/* ── 상단: PATTO + 슬로건 + 날짜 ──────────────────────────── */}
         <div
           style={{
             position: 'absolute',
-            inset: '0 0 0 40%',
-            background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.20))',
-            pointerEvents: 'none',
+            top: 28,
+            left: 20,
+            right: 20,
+            ...fadeUp(showTop),
           }}
-        />
+        >
+          {/* PATTO 로고 */}
+          <p
+            className="font-playfair"
+            style={{
+              margin: 0,
+              fontSize: 'clamp(3.6rem, 16vw, 5.8rem)',
+              fontWeight: 900,
+              letterSpacing: '-0.02em',
+              lineHeight: 0.9,
+              color: 'rgba(255,255,255,0.95)',
+              textShadow: '0 2px 24px rgba(0,0,0,0.5)',
+            }}
+          >
+            PATTO
+          </p>
 
-        {/* Magazine Logo — 우측 중앙 */}
+          {/* 슬로건 + 날짜 row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
+            <p style={{
+              margin: 0,
+              fontSize: 8,
+              fontWeight: 600,
+              letterSpacing: '0.20em',
+              color: 'rgba(255,255,255,0.55)',
+              textShadow: '0 1px 6px rgba(0,0,0,0.4)',
+            }}>
+              PATTERNS. STORIES. YOU.
+            </p>
+            <p style={{
+              margin: 0,
+              fontSize: 8,
+              fontWeight: 500,
+              letterSpacing: '0.14em',
+              color: 'rgba(255,255,255,0.45)',
+              textShadow: '0 1px 6px rgba(0,0,0,0.4)',
+            }}>
+              {issueDateLabel}
+            </p>
+          </div>
+        </div>
+
+        {/* ── 중하단: Quote ─────────────────────────────────────────── */}
         <div
           style={{
             position: 'absolute',
-            top: '50%',
-            right: RIGHT_GUTTER,
-            transform: 'translateY(-55%)',
-            textAlign: 'right',
-            pointerEvents: 'none',
+            bottom: 'calc(38% + 16px)',
+            left: 20,
+            right: 20,
+            ...fadeUp(showQuote),
           }}
         >
           <p
             className="font-playfair"
             style={{
               margin: 0,
-              fontSize: 'clamp(4rem, 18vw, 6.5rem)',
-              fontWeight: 900,
-              letterSpacing: '-0.025em',
-              lineHeight: 0.88,
-              color: 'rgba(255,255,255,0.93)',
-              textShadow: [
-                '0 2px 28px rgba(0,0,0,0.72)',
-                '0 1px 6px rgba(0,0,0,0.45)',
-              ].join(', '),
-            }}
-          >
-            PATTO
-          </p>
-          <p
-            style={{
-              margin: '8px 0 0',
-              fontSize: 8.5,
-              fontWeight: 500,
-              letterSpacing: '0.22em',
-              color: 'rgba(255,255,255,0.60)',
-              textShadow: '0 1px 8px rgba(0,0,0,0.55)',
-            }}
-          >
-            {issueDateLabel}
-          </p>
-        </div>
-      </div>
-
-      {/* ── Content — 탭 좌측 기준선(14px) 정렬 ─────────────────────── */}
-      <div
-        style={{
-          paddingLeft:   LEFT_GUTTER,
-          paddingRight:  RIGHT_GUTTER,
-          paddingBottom: 96,
-          maxWidth: 440,
-        }}
-      >
-        {/* Quote */}
-        <div style={{ paddingTop: 18, marginBottom: 28, ...fade(showQuote) }}>
-          <p
-            className="font-playfair"
-            style={{
-              fontSize: 'clamp(1.4rem, 5.5vw, 1.72rem)',
+              fontSize: 'clamp(1.25rem, 5vw, 1.6rem)',
               fontWeight: 700,
               fontStyle: 'italic',
               lineHeight: 1.3,
-              letterSpacing: '-0.01em',
-              color: 'var(--pt)',
-              margin: 0,
+              color: 'rgba(255,255,255,0.95)',
+              textShadow: '0 2px 16px rgba(0,0,0,0.55)',
+              maxWidth: 280,
             }}
           >
             {quote.en}
           </p>
-          <p
-            style={{
-              fontSize: 13,
-              color: 'var(--pm)',
-              lineHeight: 1.5,
-              letterSpacing: '0.01em',
-              margin: '10px 0 0',
-            }}
-          >
+          <p style={{
+            margin: '7px 0 0',
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.55)',
+            letterSpacing: '0.02em',
+            lineHeight: 1.5,
+            textShadow: '0 1px 8px rgba(0,0,0,0.45)',
+          }}>
             {quote.ko}
           </p>
         </div>
 
-        {/* Divider */}
+        {/* ── 하단 패널: 반투명 다크 오버레이 ─────────────────────── */}
         <div
           style={{
-            height: 1,
-            background: 'var(--pd)',
-            marginBottom: 20,
-            ...fade(showLine),
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '38%',
+            background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.72) 40%, rgba(0,0,0,0.82))',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+            padding: '0 20px 20px',
+            ...fadeUp(showBottom),
           }}
-        />
+        >
+          {/* Today's Note + Daily Goal */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 14 }}>
+            {/* 좌: Today's Note */}
+            <div style={{ flex: 1, minWidth: 0, paddingRight: 16 }}>
+              <p style={{
+                fontSize: 8.5,
+                fontWeight: 700,
+                letterSpacing: '0.24em',
+                color: 'rgba(255,255,255,0.45)',
+                margin: '0 0 5px 0',
+              }}>
+                TODAY'S NOTE
+              </p>
+              <p style={{
+                fontSize: 13,
+                color: 'rgba(255,255,255,0.85)',
+                lineHeight: 1.4,
+                margin: 0,
+              }}>
+                {notice || ' '}
+              </p>
+            </div>
 
-        {/* TODAY'S NOTE */}
-        <div style={{ marginBottom: 34, ...fade(showNote) }}>
-          <p
-            style={{
-              fontSize: 9,
-              fontWeight: 700,
-              letterSpacing: '0.26em',
-              color: 'var(--pa)',
-              margin: '0 0 6px 0',
-            }}
-          >
-            TODAY'S NOTE
-          </p>
-          <p
-            style={{
-              fontSize: 13,
-              color: 'var(--pm)',
-              letterSpacing: '0.02em',
-              lineHeight: 1.6,
-              margin: 0,
-            }}
-          >
-            {notice || ' '}
-          </p>
-        </div>
+            {/* 우: Daily Goal 원형 */}
+            <GoalCircle done={goalDone} total={goalTotal} />
+          </div>
 
-        {/* Continue Learning */}
-        <div style={fade(showBtn)}>
+          {/* Continue Learning 버튼 */}
           <button
             type="button"
             onClick={() => router.push(firstHref)}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 7,
-              background: 'none',
-              border: 'none',
-              padding: 0,
+              justifyContent: 'space-between',
+              width: '100%',
+              padding: '13px 18px',
+              background: 'rgba(255,255,255,0.12)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.22)',
+              borderRadius: 12,
               cursor: 'pointer',
-              transition: 'opacity 0.2s',
+              transition: 'background 0.2s, transform 0.15s',
+              marginBottom: 9,
             }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.5')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.20)'
+              e.currentTarget.style.transform  = 'translateY(-1px)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.12)'
+              e.currentTarget.style.transform  = 'translateY(0)'
+            }}
           >
-            <span
-              style={{
-                fontSize: 11.5,
-                fontWeight: 700,
-                letterSpacing: '0.14em',
-                color: 'var(--pa)',
-              }}
-            >
+            <span style={{ fontSize: 13.5, fontWeight: 700, letterSpacing: '0.04em', color: '#fff' }}>
               Continue Learning
             </span>
-            <ArrowRight
-              style={{ width: 12, height: 12, color: 'var(--pa)' }}
-              strokeWidth={2.5}
-            />
+            <ArrowRight style={{ width: 15, height: 15, color: 'rgba(255,255,255,0.7)' }} strokeWidth={2.5} />
+          </button>
+
+          {/* Editor's Note 버튼 */}
+          <button
+            type="button"
+            onClick={() => router.push('/settings/about')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%',
+              padding: '10px 18px',
+              background: 'rgba(255,255,255,0.06)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 12,
+              cursor: 'pointer',
+              transition: 'background 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 13 }}>📄</span>
+              <div style={{ textAlign: 'left' }}>
+                <p style={{ margin: 0, fontSize: 8, fontWeight: 700, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.40)' }}>
+                  EDITOR'S NOTE
+                </p>
+                <p style={{ margin: '2px 0 0', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.75)' }}>
+                  Why PATTO is Different
+                </p>
+              </div>
+            </div>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontWeight: 500 }}>Read · 35 sec</span>
           </button>
         </div>
       </div>
