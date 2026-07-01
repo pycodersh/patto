@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { ArrowRight } from 'lucide-react'
 import { TopNav, NAV_HEIGHT } from '@/components/TopNav'
 import { getDueCount, getAllRecords } from '@/lib/srs/storage'
 import { magazineStories } from '@/data/magazine-stories'
@@ -386,36 +387,38 @@ export default function HomePage() {
             className="hm-link"
             onClick={() => router.push(firstHref)}
             onKeyDown={e => e.key === 'Enter' && router.push(firstHref)}
-            style={{ display:'block', marginBottom: 18 }}
+            style={{ display:'flex', alignItems:'center', gap: 8, marginBottom: 18 }}
           >
-            <p style={{
-              margin: 0,
-              fontSize: 13,
-              fontWeight: 600,
-              letterSpacing: '0.01em',
-              color: 'rgba(255,255,255,0.95)',
-              lineHeight: 1.2,
-            }}>
-              {t('continue_learning')} &gt;
-            </p>
-            <div style={{
-              marginTop: 6,
-              height: 1,
-              width: '100%',
-              background: 'rgba(255,255,255,0.28)',
-            }} />
+            <div style={{ display:'inline-block' }}>
+              <p style={{
+                margin: 0,
+                fontSize: 13,
+                fontWeight: 600,
+                letterSpacing: '0.01em',
+                color: 'rgba(255,255,255,0.95)',
+                lineHeight: 1.2,
+              }}>
+                {t('continue_learning')}
+              </p>
+              <div style={{
+                marginTop: 6,
+                height: 1,
+                background: 'rgba(255,255,255,0.28)',
+              }} />
+            </div>
+            <ArrowRight style={{ width: 13, height: 13, color: 'rgba(255,255,255,0.60)', flexShrink: 0 }} strokeWidth={1.5} />
           </div>
 
-          {/* Editor's Note — same style, title only */}
-          {editorNote && (
-            <div
-              role="button"
-              tabIndex={0}
-              className="hm-link"
-              onClick={() => router.push('/editor')}
-              onKeyDown={e => e.key === 'Enter' && router.push('/editor')}
-              style={{ display:'block' }}
-            >
+          {/* Editor's Note — same style, fixed label */}
+          <div
+            role="button"
+            tabIndex={0}
+            className="hm-link"
+            onClick={() => router.push('/editor')}
+            onKeyDown={e => e.key === 'Enter' && router.push('/editor')}
+            style={{ display:'flex', alignItems:'center', gap: 8 }}
+          >
+            <div style={{ display:'inline-block' }}>
               <p style={{
                 margin: 0,
                 fontSize: 13,
@@ -424,16 +427,16 @@ export default function HomePage() {
                 color: 'rgba(255,255,255,0.60)',
                 lineHeight: 1.2,
               }}>
-                {editorNote.title} &gt;
+                {t('editor_note_label')}
               </p>
               <div style={{
                 marginTop: 6,
                 height: 1,
-                width: '100%',
                 background: 'rgba(255,255,255,0.16)',
               }} />
             </div>
-          )}
+            <ArrowRight style={{ width: 13, height: 13, color: 'rgba(255,255,255,0.35)', flexShrink: 0 }} strokeWidth={1.5} />
+          </div>
 
         </div>
       </div>
