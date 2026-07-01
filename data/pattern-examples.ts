@@ -15,7 +15,12 @@
 /** 예문 영역 — 5개 예문이 골고루 커버하도록 (PATTO Style Guide §2) */
 export type ExampleDomain = '생활' | '회사' | '여행' | '인간관계' | '돌발'
 
-export type PracticeExample = { en: string; ko: string; domain?: ExampleDomain }
+export type PracticeExample = {
+  en: string
+  ko: string                                      // ko source (primary data)
+  translations?: Partial<Record<string, string>>  // future: { ja: '...', es: '...' }
+  domain?: ExampleDomain
+}
 
 export const patternExamples: Record<string, PracticeExample[]> = {
   // ── Story 1 · 새로운 시작 ───────────────────────────────────────────────

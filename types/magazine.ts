@@ -13,7 +13,8 @@ export type ParagraphMedia = {
 export type MagazineParagraph = {
   id: string
   english: string
-  koreanTranslation: string
+  koreanTranslation: string                       // ko source (primary data)
+  translations?: Partial<Record<string, string>>  // future: { ja: '...', es: '...' }
   keyExpressions: string[]
   media?: ParagraphMedia
 }
@@ -21,11 +22,14 @@ export type MagazineParagraph = {
 export type MagazinePattern = {
   id: string
   pattern: string
-  meaningKo: string
+  meaningKo: string                                // ko source (primary data)
+  meaningTranslations?: Partial<Record<string, string>>  // future: { ja: '...', es: '...' }
   storySentence: string
   storySentenceKo: string
+  storySentenceTranslations?: Partial<Record<string, string>>
   variationSentence: string
   variationSentenceKo: string
+  variationSentenceTranslations?: Partial<Record<string, string>>
   explanation?: string
   examples?: { en: string; ko: string }[]
 }

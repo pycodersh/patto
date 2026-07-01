@@ -6,6 +6,7 @@ import { Volume2, Check, Bookmark, ChevronDown } from 'lucide-react'
 import type { MagazinePattern } from '@/types/magazine'
 import type { PracticeExample } from '@/data/pattern-examples'
 import { usePreferences } from '@/contexts/PreferencesContext'
+import { resolveTranslation } from '@/lib/i18n/translation'
 import { RATE_MAP, type VoiceKey } from '@/lib/settings/preferences'
 import { ttsProvider, getPitchForKey, patternExampleAudioUrl } from '@/lib/tts'
 import { recordPatternPractice } from '@/lib/srs/storage'
@@ -180,7 +181,11 @@ export function PatternPracticeCard({
         </span>
         <div className="flex-1 min-w-0">
           <p className="font-playfair text-[1.2rem] font-bold text-[var(--pt)] leading-snug">{pattern.pattern}</p>
-          {showTranslation && <p className="text-[0.74rem] text-[var(--pa)] mt-0.5">{pattern.meaningKo}</p>}
+          {showTranslation && resolveTranslation(pattern.meaningKo, prefs.translationLang, pattern.meaningTranslations) && (
+            <p className="text-[0.74rem] text-[var(--pa)] mt-0.5">
+              {resolveTranslation(pattern.meaningKo, prefs.translationLang, pattern.meaningTranslations)}
+            </p>
+          )}
         </div>
         <div className="shrink-0 flex items-center gap-1 mt-0.5">
           {/* 북마크 */}
@@ -309,8 +314,10 @@ export function PatternPracticeCard({
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-[0.82rem] font-medium text-[var(--pt)] leading-snug">{ex.en}</p>
-                  {showTranslation && (
-                    <p className="text-[0.7rem] text-[var(--pm)] mt-0.5 leading-snug">{ex.ko}</p>
+                  {showTranslation && resolveTranslation(ex.ko, prefs.translationLang, ex.translations) && (
+                    <p className="text-[0.7rem] text-[var(--pm)] mt-0.5 leading-snug">
+                      {resolveTranslation(ex.ko, prefs.translationLang, ex.translations)}
+                    </p>
                   )}
                   {following && (
                     <p className="mt-1 inline-flex items-center gap-1.5 text-[10px] font-bold tracking-[0.1em] text-[var(--pa)] animate-pulse">

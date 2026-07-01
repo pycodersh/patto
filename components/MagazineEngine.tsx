@@ -14,6 +14,7 @@ import { usePreferences } from '@/contexts/PreferencesContext'
 import { storyParaAudioUrl } from '@/lib/tts'
 import type { AmbienceId } from '@/types/magazine'
 import type { MagazineParagraph, MagazineStory } from '@/types/magazine'
+import { resolveTranslation } from '@/lib/i18n/translation'
 
 type MagazineEngineProps = {
   story: MagazineStory
@@ -297,9 +298,11 @@ export function MagazineEngine({ story, allStories, initialView = 'story' }: Mag
             <p className="font-playfair text-[0.78rem] text-[var(--pm)] leading-relaxed mb-2">
               {popup.english}
             </p>
-            <p className="text-[0.9rem] text-[var(--pt)] leading-relaxed mb-4">
-              {popup.koreanTranslation}
-            </p>
+            {resolveTranslation(popup.koreanTranslation, prefs.translationLang, popup.translations) && (
+              <p className="text-[0.9rem] text-[var(--pt)] leading-relaxed mb-4">
+                {resolveTranslation(popup.koreanTranslation, prefs.translationLang, popup.translations)}
+              </p>
+            )}
             {popup.keyExpressions.length > 0 && (
               <>
                 <div className="h-px bg-[var(--pd)] mb-3" />
