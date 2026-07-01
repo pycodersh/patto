@@ -46,8 +46,9 @@ function computeCtaHref(dueNow: number): string {
 function fmtTime(ms: number): string {
   const min = Math.floor(ms / 60000)
   if (min < 60) return `${min}m`
-  const h = min / 60
-  return `${h < 10 ? h.toFixed(1) : Math.round(h)}h`
+  const h = Math.floor(min / 60)
+  const rem = min % 60
+  return rem === 0 ? `${h}h` : `${h}h ${rem}m`
 }
 
 // ── Action link ───────────────────────────────────────────────────────────────
@@ -118,7 +119,7 @@ function StatCell({ value, label, border }: { value: React.ReactNode; label: str
       padding: '18px 4px', borderRight: border ? '1px solid var(--pd)' : 'none',
     }}>
       <p style={{
-        fontSize: 'clamp(1.4rem, 5.5vw, 1.75rem)', fontWeight: 700,
+        fontSize: 'clamp(1.05rem, 4vw, 1.3rem)', fontWeight: 700,
         lineHeight: 1, color: 'var(--pt)', margin: '0 0 6px',
         fontVariantNumeric: 'tabular-nums',
       }}>
